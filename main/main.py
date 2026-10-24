@@ -75,7 +75,7 @@ with tab1:
         "자료형": [str(t) for t in original.dtypes],
         "결측치 수": original.isna().sum().to_numpy(),
         "결측 비율(%)": (original.isna().mean()*100).round(2).to_numpy(),
-        "고유 값 수": original.nunique(dropna=True).to_numpy(),
+        "고유 값 수": original.apply(lambda col: col.dropna().map(str).nunique()).to_numpy(),
     })
     st.dataframe(overview, use_container_width=True, hide_index=True)
     st.write(f"질문 텍스트 중복 행: **{original['user_query'].duplicated().sum():,}개**")
