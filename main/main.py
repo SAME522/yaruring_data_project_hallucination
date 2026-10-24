@@ -91,7 +91,9 @@ with tab2:
     st.dataframe(summary.round(2), use_container_width=True)
     selected = st.selectbox("분포를 확인할 변수", numeric)
     hist = pd.cut(data[selected], bins=20, duplicates="drop").value_counts(sort=False)
-    st.bar_chart(hist.rename_axis("구간").reset_index(name="질문 수").set_index("구간"))
+    hist_table = hist.rename_axis("구간").reset_index(name="질문 수")
+    hist_table["구간"] = hist_table["구간"].astype(str)
+    st.bar_chart(hist_table.set_index("구간"))
     st.caption("원본에는 질문 글자 수 등의 수치 열이 없어서 질문 텍스트에서 새로 계산했습니다.")
     st.dataframe(data[["user_query"] + numeric].head(30), use_container_width=True, hide_index=True)
 
