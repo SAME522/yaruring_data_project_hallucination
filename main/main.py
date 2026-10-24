@@ -1,3 +1,35 @@
+"""HaluEval 1.0 data exploration app (Streamlit).
+
+Run: streamlit run main.py
+"""
+from __future__ import annotations
+
+import io
+import re
+
+import pandas as pd
+import requests
+import streamlit as st
+
+DEFAULT_URL = "https://raw.githubusercontent.com/RUCAIBox/HaluEval/main/data/general_data.json"
+
+st.set_page_config(page_title="HaluEval 데이터 탐색", page_icon="🔎", layout="wide")
+
+
+@st.cache_data(ttl=3600, show_spinner="원본 데이터 불러오는 중...")
+def fetch_data(url: str) -> pd.DataFrame:
+    if not url.startswith(("https://", "http://")):
+        raise ValueError("http(s) 주소를 입력해 주세요.")
+    response = requests.get(url, timeout=35)
+    response.raise_for_status()
+    # HaluEval general_data.json is JSON Lines (one JSON object per line).
+    return pd.read_json(io.BytesIO(response.content), lines=True, dtype=False)
+
+
+def enrich(df: pd.DataFrame) -> pd.DataFrame:
+    out = df.copy()
+    texts = out["user_query"].fillna("").astype(str)
+    tokens = texts.str.findall(r"[A-Za-z]+(?:'[A-Za-z]+)*")
     out["질문_글자수"] = texts.str.len()
     out["질문_단어수"] = tokens.str.len()
     out["고유_단어수"] = tokens.apply(lambda ws: len(set(w.lower() for w in ws)))
