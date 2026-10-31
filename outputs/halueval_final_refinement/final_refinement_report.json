@@ -1,0 +1,24 @@
+{
+  "train_questions": 3605,
+  "train_yes": 652,
+  "holdout_test_untouched": 902,
+  "focus_mixed_semantic_groups": [
+    "S01",
+    "S03",
+    "S06"
+  ],
+  "focus_vocabulary": 186,
+  "assigned_to_8_subtopics": 90,
+  "unresolved_kept_original_S": 96,
+  "subtopics": 8,
+  "train_questions_with_subtopics": 1114,
+  "models_compared": 8,
+  "cross_validation_folds": 5,
+  "best_model": "TFIDF_reference",
+  "tfidf_reference_auc": 0.6609272942345891,
+  "tfidf_plus_8_auc": 0.6589499838730338,
+  "baseline_QS_roles_interactions_auc": 0.6012945513858288,
+  "best_non_text_auc": 0.6124556986692933,
+  "decision": "Do not extend clustering beyond this round; freeze analysis, retain best CV baseline, conduct one final external holdout evaluation",
+  "caution": "The subtopic lexicon was designed after examining train-group patterns and is exploratory; no test labels used. Prior Q/S groups were fitted on train corpus before CV; final fold-refit or external test needed."
+}

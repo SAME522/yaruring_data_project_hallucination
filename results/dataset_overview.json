@@ -1,0 +1,12 @@
+{
+  "original_labeled_questions": 4507,
+  "conflicting_question_texts_excluded": 0,
+  "duplicate_rows_excluded": 0,
+  "usable_unique_questions": 4507,
+  "train": 3605,
+  "test": 902,
+  "train_yes": 652,
+  "test_yes": 163,
+  "k": 6,
+  "caution": "Benchmark conditional association, not causal risk; labels concern historical ChatGPT responses."
+}

@@ -1,0 +1,9 @@
+﻿subtopic,parent_S,lexicon_words,frequent_words,question_count,yes_questions,yes_rate,parent_yes_rate,difference_pp,review_note
+S01_AI_컴퓨팅,S01,11,"input, language, learning, computer, model, machine, gpt, system, assistant, models, processing",247,29,0.11740890688259109,0.16419612314709237,-4.678721626450128,"임시 의미 사전, 원문 검토 필요"
+S01_과학_연구,S01,12,"science, research, hypothesis, paper, cause, scientific, physical, sample, test, field, effect, body",144,27,0.1875,0.16419612314709237,2.3303876852907637,"임시 의미 사전, 원문 검토 필요"
+S03_비즈니스_웹,S03,17,"customer, business, website, service, online, web, company, logo, page, project, budget, marketing, team, brand",292,64,0.2191780821917808,0.18053777208706787,3.8640310104712943,"임시 의미 사전, 원문 검토 필요"
+S03_건강_교육_생활,S03,10,"life, healthy, environment, student, home, school, protect, self, students, vacation",160,30,0.1875,0.18053777208706787,0.6962227912932134,"임시 의미 사전, 원문 검토 필요"
+S06_데이터_SQL,S06,12,"data, user, structure, types, valid, network, neural, query, account, database, names, users",201,54,0.26865671641791045,0.2585895117540687,1.0067204663841756,"임시 의미 사전, 원문 검토 필요"
+S06_수학_기하,S06,10,"area, triangle, total, mathematical, cm, expression, methods, probability, side, width",103,27,0.2621359223300971,0.2585895117540687,0.35464105760283915,"임시 의미 사전, 원문 검토 필요"
+S06_금융_거래,S06,9,"store, price, stock, market, rate, cost, sales, interest, income",108,37,0.3425925925925926,0.2585895117540687,8.400308083852392,"임시 의미 사전, 원문 검토 필요"
+S06_연도_시간,S06,9,"year, years, old, age, past, date, month, months, week",111,31,0.27927927927927926,0.2585895117540687,2.0689767525210567,"임시 의미 사전, 원문 검토 필요"

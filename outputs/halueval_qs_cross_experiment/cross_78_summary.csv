@@ -1,0 +1,155 @@
+﻿cross_group,question_group,question_cluster_name,semantic_group,semantic_group_name,train_questions,train_yes,train_no,train_yes_rate,parent_Q_questions,parent_Q_yes,parent_Q_yes_rate,difference_from_parent_pp,smoothed_yes_rate,smoothed_difference_pp,wilson_95_low,wilson_95_high,analysis_status,example_source_row,example_question,example_matching_words
+Q0xS01,Q0,시·비유·구조화 중심,S01,AI·개념·언어모델 혼합,83,9,74,0.10843373493975904,370,60,0.16216216216216217,-5.372842722240313,0.12087087087087088,-4.129129129129129,0.058104257602346984,0.1934065390665306,주요 검토 후보,1315,Create a sample input that illustrates the concept of natural language processing,"concept, input, language, natural, processing, sample"
+Q0xS02,Q0,시·비유·구조화 중심,S02,사회·기술·뉴스 혼합,51,5,46,0.09803921568627451,370,60,0.16216216216216217,-6.412294647588766,0.11913229018492177,-4.30298719772404,0.04260744495307697,0.2097848995445307,주요 검토 후보,410,Create a meme summarizing the importance of maintaining a healthy lifestyle.,"importance, lifestyle, summarizing"
+Q0xS03,Q0,시·비유·구조화 중심,S03,서비스·사람·웹 혼합,69,15,54,0.21739130434782608,370,60,0.16216216216216217,5.522914218566391,0.20270270270270271,4.054054054054054,0.13640646957336042,0.328185192334121,주요 검토 후보,2107,"Given the story of a person’s life, describe the effect they had on their environment.
+John was born in a small town in the Midwest. He was a self-taught inventor who used his knowledge and skills to create numerous machines and tools to help the members of his community. He generously shared the ideas and products he created to help others in his town improve their lives.","environment, help, ideas, improve, life, lives, person, products, self"
+Q0xS04,Q0,시·비유·구조화 중심,S04,서사·작품·인물,62,10,52,0.16129032258064516,370,60,0.16216216216216217,-0.08718395815170144,0.16154085119602363,-0.06213109661385441,0.09003972354068436,0.2720656930956064,주요 검토 후보,585,Create a fictional character and provide a brief description of them.,"brief, character, description"
+Q0xS05,Q0,시·비유·구조화 중심,S05,시·문학 표현,119,17,102,0.14285714285714285,370,60,0.16216216216216217,-1.9305019305019322,0.14620870870870872,-1.5953453453453448,0.09114464131567314,0.2169073540995608,주요 검토 후보,513,"Create a poem that has 8 lines and uses the following words: tree, sky, love, sun.","lines, love, sky, sun, uses, words"
+Q0xS06,Q0,시·비유·구조화 중심,S06,수치·연도·가격 혼합,72,20,52,0.2777777777777778,370,60,0.16216216216216217,11.561561561561561,0.24797993870158822,8.581777653942604,0.18760146005322942,0.3904665131962801,주요 검토 후보,1673,"Create a database query to calculate the total sales in the past week.
+Table name = sales","database, past, query, sales, total, week"
+Q0xS07,Q0,시·비유·구조화 중심,S07,창작 표현·상황,37,3,34,0.08108108108108109,370,60,0.16216216216216217,-8.108108108108109,0.11377506538796862,-4.838709677419355,0.027960066396321384,0.2130099249850153,소규모: 탐색만,663,Create a funny analogy that compares the zipper to something else.,"funny, something"
+Q0xS08,Q0,시·비유·구조화 중심,S08,수학·코드·알고리즘,44,5,39,0.11363636363636363,370,60,0.16216216216216217,-4.852579852579854,0.13121817469643557,-3.09439874657266,0.04952707589567494,0.23979435148133582,주요 검토 후보,2120,Create an algorithm for finding out the largest number in an array of integers.,"algorithm, finding, integers, largest, number"
+Q0xS09,Q0,시·비유·구조화 중심,S09,앱·디지털 콘텐츠,31,1,30,0.03225806451612903,370,60,0.16216216216216217,-12.990409764603314,0.09025096525096525,-7.191119691119692,0.00571707408694444,0.16194457176169622,소규모: 탐색만,1313,"Create a social media post about an upcoming product launch
+Product Name: ""Life Saver""","media, post, product, social, upcoming"
+Q0xS10,Q0,시·비유·구조화 중심,S10,식품·일상 물품,22,3,19,0.13636363636363635,370,60,0.16216216216216217,-2.5798525798525818,0.1500862564692352,-1.2075905692926963,0.04748917264236269,0.3333541187947,소규모: 탐색만,553,Imagine you are organizing a birthday party for a friend. Create a checklist of items to bring.,"birthday, items, party"
+Q0xS11,Q0,시·비유·구조화 중심,S11,시간·동물·이야기 혼합,30,4,26,0.13333333333333333,370,60,0.16216216216216217,-2.882882882882884,0.14643734643734643,-1.572481572481574,0.05309569424218104,0.2968168394441695,소규모: 탐색만,1218,"Given a story, pick out specific details and create an outline
+Once upon a time, there was a brave knight who set off on a quest to find the magical relic known as the Chalice of Life. He traveled to distant lands, bravely faced many dangerous creatures, and encountered numerous powerful magic users. Though his journey was long and arduous, the knight eventually found the Chalice of Life deep in a forgotten temple.","brave, deep, found, journey, magical, out, set, there, time"
+Q0xS12,Q0,시·비유·구조화 중심,S12,환경·건강·개선,6,0,6,0.0,370,60,0.16216216216216217,-16.216216216216218,0.13077593722755015,-3.1386224934612015,0.0,0.3903430336530645,희소: 통합·보류,2746,"Create a conclusion for a scientific report
+It has been observed that the changes in ice cover over the past century have been caused by various environmental factors, such as changes in temperature, oceanic circulation, and air pollution.","air, caused, environmental, pollution"
+Q0xS13,Q0,시·비유·구조화 중심,S13,국가·역사·경제,21,11,10,0.5238095238095238,370,60,0.16216216216216217,36.16473616473617,0.327262044653349,16.509988249118685,0.32369217900266756,0.7165628770323705,소규모: 탐색만,2860,Create a visualization to compare the GDP growth of India and China between 1998 and 1998.,"growth, india, visualization"
+Q1xS01,Q1,목록·일상 제안 중심,S01,AI·개념·언어모델 혼합,55,5,50,0.09090909090909091,348,39,0.11206896551724138,-2.115987460815047,0.09752155172413793,-1.4547413793103452,0.039457573336373924,0.19577736249133978,주요 검토 후보,3015,"Generate a list of search terms related to the news article.
+Tech giants Microsoft and Google have partnered to create a new digital assistant.","assistant, google, search, terms"
+Q1xS02,Q1,목록·일상 제안 중심,S02,사회·기술·뉴스 혼합,124,13,111,0.10483870967741936,348,39,0.11206896551724138,-0.7230255839822022,0.10605183985188614,-0.6017125665355241,0.06229725933736693,0.17112910578947751,주요 검토 후보,2920,"Given the following facts, generate a list of 3 challenges someone might face when starting a new job.
+Facts: The job is in a new industry, with a steep learning curve.","face, facts, industry, someone, starting"
+Q1xS03,Q1,목록·일상 제안 중심,S03,서비스·사람·웹 혼합,94,8,86,0.0851063829787234,348,39,0.11206896551724138,-2.696258253851798,0.09077079107505072,-2.129817444219066,0.04375496466822986,0.15903812129929315,주요 검토 후보,4458,"Given a list of tasks, state which task is the most important.
+1. Finish the report
+2. Get more funding
+3. Improve customer service","customer, get, improve, service, state"
+Q1xS04,Q1,목록·일상 제안 중심,S04,서사·작품·인물,58,9,49,0.15517241379310345,348,39,0.11206896551724138,4.310344827586207,0.14218944744495224,3.012048192771086,0.08384397416750201,0.26934223058787304,주요 검토 후보,1546,"Given the provided excerpt, list 4 key points about the writing style.
+The morning air was crisp and cool as I walked along the beach, feeling the warmth of the sun on my skin.","beach, feeling, morning"
+Q1xS05,Q1,목록·일상 제안 중심,S05,시·문학 표현,40,8,32,0.2,348,39,0.11206896551724138,8.793103448275863,0.16618037135278516,5.411140583554378,0.10499864973166874,0.34757607381856676,주요 검토 후보,1080,"Given a list of words, complete the paragraph without repeating a single word.
+List of words: envelope, traffic, night, singing, postman, kitchen","complete, night, word, words"
+Q1xS06,Q1,목록·일상 제안 중심,S06,수치·연도·가격 혼합,44,8,36,0.18181818181818182,348,39,0.11206896551724138,6.974921630094045,0.15654672663668168,4.447776111944029,0.09512692558258554,0.3196083675514233,주요 검토 후보,2514,Generate a list of all valid triangle types.,"triangle, types, valid"
+Q1xS07,Q1,목록·일상 제안 중심,S07,창작 표현·상황,17,2,15,0.11764705882352941,348,39,0.11206896551724138,0.5578093306288029,0.11432676518883415,0.22577996715927723,0.03287908001292092,0.3433684249770991,소규모: 탐색만,225,"Given the following phrase, generate a list of synonyms
+Create something","phrase, something"
+Q1xS08,Q1,목록·일상 제안 중심,S08,수학·코드·알고리즘,26,5,21,0.19230769230769232,348,39,0.11206896551724138,8.023872679045093,0.15297498309668695,4.090601757944556,0.08506935771788268,0.3787663615465,소규모: 탐색만,508,"Create a function that takes a list and a number as arguments, and returns a list with the numbers multiplied by the specified number.
+[2, 4, 6]
+3","number, numbers, returns, takes"
+Q1xS09,Q1,목록·일상 제안 중심,S09,앱·디지털 콘텐츠,28,3,25,0.10714285714285714,348,39,0.11206896551724138,-0.49261083743842443,0.10946649316851009,-0.26024723487312884,0.03711769205479949,0.2719622536765708,소규모: 탐색만,2133,List five features of a social media application.,"application, features, media, social"
+Q1xS10,Q1,목록·일상 제안 중심,S10,식품·일상 물품,76,7,69,0.09210526315789473,348,39,0.11206896551724138,-1.996370235934665,0.09704677364288154,-1.5022191874359838,0.04533342778112863,0.17812902788108254,주요 검토 후보,145,"Generate a shopping list for a 4-person dinner party, considering the ingredients and spices needed to prepare a simple Mexican dish, such as a Burrito.","dinner, dish, ingredients, needed, party, shopping, simple"
+Q1xS11,Q1,목록·일상 제안 중심,S11,시간·동물·이야기 혼합,23,5,18,0.21739130434782608,348,39,0.11206896551724138,10.53223388305847,0.1625359195402299,5.046695402298851,0.09663835601719065,0.4190388018273492,소규모: 탐색만,141,Generate a list of adjectives that describe a person as brave.,brave
+Q1xS12,Q1,목록·일상 제안 중심,S12,환경·건강·개선,33,3,30,0.09090909090909091,348,39,0.11206896551724138,-2.115987460815047,0.10002972651605233,-1.2039239001189057,0.03140337104926305,0.23572943534351032,소규모: 탐색만,1494,List 4 ways to reduce plastic waste.,"plastic, reduce, waste, ways"
+Q1xS13,Q1,목록·일상 제안 중심,S13,국가·역사·경제,17,5,12,0.29411764705882354,348,39,0.11206896551724138,18.204868154158216,0.1857553366174056,7.368637110016421,0.13279793865556402,0.5313353332621391,소규모: 탐색만,80,"Generate a keyword list that suits the content of the article.
+The article is about understanding the economic growth of India over the last 5 years.","growth, india"
+Q2xS01,Q2,문장·형식 변환 중심,S01,AI·개념·언어모델 혼합,90,22,68,0.24444444444444444,333,92,0.27627627627627627,-3.183183183183183,0.251364407886147,-2.4911868390129266,0.16732663395366268,0.3424856454618631,주요 검토 후보,1357,"Generate a multiple choice question based on the following statement: ""Natural language processing is a field of study within computer science.""","computer, field, language, natural, processing, science"
+Q2xS02,Q2,문장·형식 변환 중심,S02,사회·기술·뉴스 혼합,62,15,47,0.24193548387096775,333,92,0.27627627627627627,-3.434079240530852,0.2518035276655966,-2.4472748610679664,0.15245763680948543,0.3615274425324505,주요 검토 후보,1382,"Find the most relevant source of information for the following topic.
+Artificial intelligence in education","artificial, education, intelligence, relevant, topic"
+Q2xS03,Q2,문장·형식 변환 중심,S03,서비스·사람·웹 혼합,74,27,47,0.36486486486486486,333,92,0.27627627627627627,8.85885885885886,0.3424940091606758,6.621773288439953,0.2643839969334518,0.4786839770033634,주요 검토 후보,2149,"Analyze the following text and provide 3 major takeaways.
+Organizational efficiency can help save time, money, and resources.","help, major, money, resources, save"
+Q2xS04,Q2,문장·형식 변환 중심,S04,서사·작품·인물,83,20,63,0.24096385542168675,333,92,0.27627627627627627,-3.531242085458952,0.24913802691580467,-2.71382493604716,0.1617462229721785,0.34309938097800213,주요 검토 후보,914,"Take the following text and add two more sentences to it.
+Alice and Bob were two best friends living in the same city.","add, alice, city, take"
+Q2xS05,Q2,문장·형식 변환 중심,S05,시·문학 표현,87,17,70,0.19540229885057472,333,92,0.27627627627627627,-8.087397742570154,0.21345452595452594,-6.282175032175033,0.12573278124165055,0.29083407799464656,주요 검토 후보,1278,"Take the following poem and add an extra verse.
+The trees sway in the cold winter breeze,
+White snow cascading from the highest trees,
+The fox ducks through the snow white dew,
+The sky a brilliant sight of blue","blue, sky, trees, verse, white, winter"
+Q2xS06,Q2,문장·형식 변환 중심,S06,수치·연도·가격 혼합,60,18,42,0.3,333,92,0.27627627627627627,2.3723723723723724,0.2930224341989048,1.6746157922628513,0.19898010252726892,0.42508946966390415,주요 검토 후보,1513,"Parse the following sentence and create a dictionary for the given structure
+Jack is a 21 years old student from New York","old, structure, years, york"
+Q2xS07,Q2,문장·형식 변환 중심,S07,창작 표현·상황,49,13,36,0.2653061224489796,333,92,0.27627627627627627,-1.0970153827296658,0.26901225549874197,-0.7264020777534297,0.1621113124514944,0.4026255615265835,주요 검토 후보,1292,"After reading the following text, come up with a creative way to show it in a visual.
+The sky is a sea of stars.","come, creative, reading, up, way"
+Q2xS08,Q2,문장·형식 변환 중심,S08,수학·코드·알고리즘,35,9,26,0.2571428571428571,333,92,0.27627627627627627,-1.913341913341915,0.2651151151151151,-1.116116116116117,0.1416286872655014,0.4206962427064873,주요 검토 후보,844,"Generate a Python script that performs the following task.
+Print the second largest number in a list of numbers","largest, number, numbers, print, python"
+Q2xS09,Q2,문장·형식 변환 중심,S09,앱·디지털 콘텐츠,21,8,13,0.38095238095238093,333,92,0.27627627627627627,10.467610467610466,0.324063193628411,4.778691735213475,0.20750767797982506,0.5912170418449848,소규모: 탐색만,3070,"Design a post for a social media account to promote the following product
+Fresh fruit smoothie","media, post, product, promote, social"
+Q2xS10,Q2,문장·형식 변환 중심,S10,식품·일상 물품,28,11,17,0.39285714285714285,333,92,0.27627627627627627,11.658086658086658,0.33786616805484726,6.1589891778571,0.23565451827580033,0.575912739650937,소규모: 탐색만,62,"Build a decision tree to classify the following data.
+| Color | Type |
+| ----  | ---- |
+| Red | Apple  |
+| Green | Apple |
+| Red | Orange |
+| Yellow | Banana |","apple, banana, color, orange, red, tree"
+Q2xS11,Q2,문장·형식 변환 중심,S11,시간·동물·이야기 혼합,48,12,36,0.25,333,92,0.27627627627627627,-2.6276276276276267,0.25899872475214936,-1.727755152412691,0.1492048880971003,0.3878464374792707,주요 검토 후보,4209,"For the following sentence, point out the grammatical mistakes and suggest a fix for each mistake.
+There is three mistakes.","out, point, there"
+Q2xS12,Q2,문장·형식 변환 중심,S12,환경·건강·개선,25,9,16,0.36,333,92,0.27627627627627627,8.372372372372372,0.3181381381381381,4.186186186186186,0.20247656431735636,0.5548184539895337,소규모: 탐색만,713,"Reorganize the following pieces of information into a well-structured outline.
+• Causes of Air Pollution 
+• Health Risks associated with Air Pollution 
+• Prevention Strategies","air, associated, causes, pollution, strategies"
+Q2xS13,Q2,문장·형식 변환 중심,S13,국가·역사·경제,13,6,7,0.46153846153846156,333,92,0.27627627627627627,18.52621852621853,0.3396554449186028,6.3379168642326515,0.2320575430148814,0.7085656756816796,희소: 통합·보류,143,"Retrieve the following data from the World Bank database
+Unemployment rate in India from 2005 to 2010","india, world"
+Q3xS01,Q3,여러 유형이 섞인 대규모 혼합,S01,AI·개념·언어모델 혼합,487,93,394,0.19096509240246407,2017,399,0.19781854238968766,-0.6853449987223592,0.19129973351512147,-0.6518808874566184,0.15852644845478753,0.22824109529048592,주요 검토 후보,3629,"Draft a tweet about the latest research paper
+Abstract: Fine-tuning continuous prompts for target tasks has recently emerged as a compact alternative to full model fine-tuning. Motivated by these promising results, we investigate the feasibility of extracting a discrete (textual) interpretation of continuous prompts that is faithful to the problem they solve. In practice, we observe a ""wayward"" behavior between the task solved by continuous prompts and their nearest neighbor discrete projections","alternative, behavior, definition, effect, future, higher, language, latest, model, models, paper, practice, problem, recently, research, size, small, task, tasks, well, while"
+Q3xS02,Q3,여러 유형이 섞인 대규모 혼합,S02,사회·기술·뉴스 혼합,421,93,328,0.2209026128266033,2017,399,0.19781854238968766,2.3084070436915654,0.21960866269000492,2.1790120300317266,0.18389642831406985,0.2629562339487593,주요 검토 후보,3085,"Given the following article, rewrite the sentences in an engaging way.
+Climate change, also commonly referred to as global warming, is one of the most pressing topics we face today. Scientists and researchers have been studying the effects of climate change for decades, and the news isn't good.","change, climate, effects, face, global, good, news, today, topics, warming"
+Q3xS03,Q3,여러 유형이 섞인 대규모 혼합,S03,서비스·사람·웹 혼합,416,76,340,0.18269230769230768,2017,399,0.19781854238968766,-1.5126234697379974,0.18354980399034512,-1.4268738399342533,0.14851893690004703,0.2226724838643555,주요 검토 후보,4041,"Given a customer review, provide 4 examples of questions that could help improve customer service.
+The customer service team did not answer my questions and did not provide helpful solutions.","customer, help, improve, review, service, solutions, team"
+Q3xS04,Q3,여러 유형이 섞인 대규모 혼합,S04,서사·작품·인물,473,92,381,0.1945031712473573,2017,399,0.19781854238968766,-0.33153711423303533,0.194669605541651,-0.314893684803666,0.1613517421328193,0.23257697549584397,주요 검토 후보,1904,"Transform the passage into a conversation between two characters.
+John had a bad day at work and was feeling down.","characters, conversation, day, down, feeling, john, passage, work"
+Q3xS05,Q3,여러 유형이 섞인 대규모 혼합,S05,시·문학 표현,326,59,267,0.18098159509202455,2017,399,0.19781854238968766,-1.6836947297663107,0.18218080786251337,-1.5637734527174292,0.1429816882119179,0.2264125907389483,주요 검토 후보,2706,"Compare a given sentence to one written by a famous author and rewrite the sentence to make it more like the famous author's writing style.
+The sunset was breath-taking.
+Famous Author: Ernest Hemingway","famous, like, style, sunset, writing, written"
+Q3xS06,Q3,여러 유형이 섞인 대규모 혼합,S06,수치·연도·가격 혼합,320,91,229,0.284375,2017,399,0.19781854238968766,8.655645761031233,0.27810279292678897,8.02842505371013,0.23773277742161064,0.3361329643484399,주요 검토 후보,3860,"Construct a valid SQL query to update data in a table.
+Table Name: users
+Column Names: user_id, age","age, data, names, query, user, users, valid"
+Q3xS07,Q3,여러 유형이 섞인 대규모 혼합,S07,창작 표현·상황,317,46,271,0.14511041009463724,2017,399,0.19781854238968766,-5.270813229505042,0.14896334374193623,-4.8855198647751426,0.11058584411659605,0.1881335239454009,주요 검토 후보,716,"Given the context and keywords, come up with a funny, non-offensive joke.
+Context: Interview
+Keywords: Cows, Monkeys","come, context, funny, joke, keywords, up"
+Q3xS08,Q3,여러 유형이 섞인 대규모 혼합,S08,수학·코드·알고리즘,176,36,140,0.20454545454545456,2017,399,0.19781854238968766,0.6726912155766901,0.20370877392906564,0.5890231539377982,0.1515657672943556,0.27014756265822487,주요 검토 후보,2130,"Rewrite the following algorithm using pseudocode.
+function simpleSum(n: INTEGER)
+// calculates the sum of the first n natural numbers
+var sum, number: INTEGER
+sum := 0
+number := 0
+
+while number < n do
+  sum := sum + number
+  number := number + 1
+end while
+
+return sum","algorithm, number, numbers, pseudocode, return, sum"
+Q3xS09,Q3,여러 유형이 섞인 대규모 혼합,S09,앱·디지털 콘텐츠,184,34,150,0.18478260869565216,2017,399,0.19781854238968766,-1.3035933694035495,0.1863419309078574,-1.1476611481830268,0.13535168333179287,0.24710672843642034,주요 검토 후보,3460,Draft a social media post to promote a new tax client accounting software.,"media, post, promote, social, software"
+Q3xS10,Q3,여러 유형이 섞인 대규모 혼합,S10,식품·일상 물품,118,23,95,0.19491525423728814,2017,399,0.19781854238968766,-0.29032881523995135,0.19542282209609924,-0.23957202935884214,0.13353979782234554,0.27552902596197765,주요 검토 후보,97,"Suggest a dish for a dinner party that's suitable for vegetarians. Output the name of the dish.
+No input","dinner, dish, party"
+Q3xS11,Q3,여러 유형이 섞인 대규모 혼합,S11,시간·동물·이야기 혼합,155,35,120,0.22580645161290322,2017,399,0.19781854238968766,2.7987909223215564,0.22191924199856775,2.4100699608880087,0.16707758831252909,0.2977981117559668,주요 검토 후보,2097,"Select an appropriate conclusion for this short story.
+Once upon a time, there was a brave little rabbit named Wilbur. He had been living in the forest for some time, and he was tired of living all alone. All of the other forest animals were friendly to him, but he wanted to find someone who he could really connect with and be best friends with. Wilbur decided he would set out on a big journey to find just the right friend.","animals, appropriate, big, brave, conclusion, forest, friend, friends, journey, living, out, right, select, set, there, time"
+Q3xS12,Q3,여러 유형이 섞인 대규모 혼합,S12,환경·건강·개선,149,21,128,0.14093959731543623,2017,399,0.19781854238968766,-5.687894507425143,0.14911185953874823,-4.870668285093943,0.09406606437422982,0.20586275081744576,주요 검토 후보,1022,Name two ways to reduce stress in a high-pressure workplace.,"high, reduce, stress, ways"
+Q3xS13,Q3,여러 유형이 섞인 대규모 혼합,S13,국가·역사·경제,108,24,84,0.2222222222222222,2017,399,0.19781854238968766,2.4403679832534553,0.21763506435896385,1.981652196927619,0.15412441082279266,0.3094025773461891,주요 검토 후보,2966,Summarize the cultural differences between India and the United States.,"differences, india, states, united"
+Q4xS01,Q4,예시·상황 제시 중심,S01,AI·개념·언어모델 혼합,81,8,73,0.09876543209876543,208,27,0.12980769230769232,-3.104226020892689,0.10608671988388971,-2.372097242380261,0.05089950757441662,0.1829668975853163,주요 검토 후보,3455,"Provide an example of a scenario that requires a system for machine learning.
+<No Input>","input, learning, machine, scenario, system"
+Q4xS02,Q4,예시·상황 제시 중심,S02,사회·기술·뉴스 혼합,49,5,44,0.10204081632653061,208,27,0.12980769230769232,-2.7766875981161703,0.11142151767151769,-1.8386174636174633,0.044378892487039884,0.21756624164970087,주요 검토 후보,3575,"Generate an example of how the given technology is being used in the industry.
+AI in healthcare","ai, healthcare, industry, technology"
+Q4xS03,Q4,예시·상황 제시 중심,S03,서비스·사람·웹 혼합,67,8,59,0.11940298507462686,208,27,0.12980769230769232,-1.0404707233065456,0.12223035117056857,-0.7577341137123744,0.06176158770587534,0.21832243072397375,주요 검토 후보,4082,Find an example of a company using ML for automated customer service,"company, customer, service"
+Q4xS04,Q4,예시·상황 제시 중심,S04,서사·작품·인물,19,5,14,0.2631578947368421,208,27,0.12980769230769232,13.335020242914977,0.18739073426573427,5.758304195804195,0.11806238339540162,0.48791968441070643,소규모: 탐색만,426,Create an example of a 5-sentence description of a setting.,"description, setting"
+Q4xS05,Q4,예시·상황 제시 중심,S05,시·문학 표현,14,3,11,0.21428571428571427,208,27,0.12980769230769232,8.447802197802195,0.16013313609467458,3.0325443786982262,0.0757124833691637,0.4758972377320828,희소: 통합·보류,554,"Give an example of a metaphor found in the text.
+The sky was a blanket of stars.","sky, stars"
+Q4xS06,Q4,예시·상황 제시 중심,S06,수치·연도·가격 혼합,24,3,21,0.125,208,27,0.12980769230769232,-0.48076923076923184,0.12745290423861855,-0.2354788069073771,0.04344255039315584,0.3100428814785757,소규모: 탐색만,1158,"Create an example budget for a family income of $30,000 per year.","income, year"
+Q4xS07,Q4,예시·상황 제시 중심,S07,창작 표현·상황,49,5,44,0.10204081632653061,208,27,0.12980769230769232,-2.7766875981161703,0.11142151767151769,-1.8386174636174633,0.044378892487039884,0.21756624164970087,주요 검토 후보,587,"Come up with a creative example of using the following idiom ""the best of both worlds"".","come, creative, idiom, up"
+Q4xS08,Q4,예시·상황 제시 중심,S08,수학·코드·알고리즘,7,0,7,0.0,208,27,0.12980769230769232,-12.980769230769232,0.10141225961538462,-2.8395432692307696,0.0,0.35433884297520657,희소: 통합·보류,1274,Give an example of a valid credit card number.,number
+Q4xS09,Q4,예시·상황 제시 중심,S09,앱·디지털 콘텐츠,13,2,11,0.15384615384615385,208,27,0.12980769230769232,2.4038461538461537,0.13803137651821865,0.8223684210526327,0.04325726318273798,0.4223517050863101,희소: 통합·보류,3126,"Generate 3 example product features related to ""Social Media""","features, media, product, social"
+Q4xS10,Q4,예시·상황 제시 중심,S10,식품·일상 물품,10,1,9,0.1,208,27,0.12980769230769232,-2.9807692307692313,0.1212912087912088,-0.8516483516483514,0.01787574951572113,0.4041563854975721,희소: 통합·보류,306,Give me an example of a simple machine learning problem.,simple
+Q4xS11,Q4,예시·상황 제시 중심,S11,시간·동물·이야기 혼합,19,3,16,0.15789473684210525,208,27,0.12980769230769232,2.8087044534412935,0.14193618881118883,1.212849650349651,0.055203710399278266,0.3756592764317668,소규모: 탐색만,1300,"Offer an example to illustrate the following proverb.
+""Time is money.""","proverb, time"
+Q4xS12,Q4,예시·상황 제시 중심,S12,환경·건강·개선,4,1,3,0.25,208,27,0.12980769230769232,12.019230769230768,0.14638594164456237,1.6578249336870048,0.045586062644636216,0.6993639475573634,희소: 통합·보류,2469,Give an example of how technology has had a positive impact on society.,society
+Q4xS13,Q4,예시·상황 제시 중심,S13,국가·역사·경제,15,3,12,0.2,208,27,0.12980769230769232,7.019230769230769,0.15612980769230772,2.63221153846154,0.07047420643610414,0.4518593533465045,소규모: 탐색만,53,"Create an example of a data visualization chart to express the given data.
+Population of China in 2020 is 1,439,323,776.","population, visualization"
+Q5xS01,Q5,서사·형식 생성 중심,S01,AI·개념·언어모델 혼합,81,7,74,0.08641975308641975,329,35,0.10638297872340426,-1.9963225636984507,0.09112806101967082,-1.525491770373344,0.04249204303723253,0.1678010207427999,주요 검토 후보,2805,"Answer the following true/false question with an explanation
+GPT language model will generate different output each time the same input is given.","gpt, input, language, model"
+Q5xS02,Q5,서사·형식 생성 중심,S02,사회·기술·뉴스 혼합,60,8,52,0.13333333333333333,329,35,0.10638297872340426,2.6950354609929077,0.12540675844806007,1.9023779724655812,0.06914026978309641,0.24165394590072103,주요 검토 후보,1777,Generate a speech outline with three main points to plan for a presentation on the importance of renewable energy.,"energy, importance, points, renewable, speech"
+Q5xS03,Q5,서사·형식 생성 중심,S03,서비스·사람·웹 혼합,61,7,54,0.11475409836065574,329,35,0.10638297872340426,0.8371119637251484,0.11232063334982681,0.5937654626422553,0.0567113064337431,0.2184453830989026,주요 검토 후보,3394,"Generate a response based on the conversation below.
+Bob: I'm really not sure what I'm going to do with my life
+Alice:","going, i'm, life, response"
+Q5xS04,Q5,서사·형식 생성 중심,S04,서사·작품·인물,83,12,71,0.14457831325301204,329,35,0.10638297872340426,3.8195334529607785,0.13573680063041765,2.9353821907013398,0.08468215781561281,0.23591994992998375,주요 검토 후보,2228,Generate a anecdote that starts with 'As I was walking down the street I saw...'.,"down, saw, street, walking"
+Q5xS05,Q5,서사·형식 생성 중심,S05,시·문학 표현,98,8,90,0.08163265306122448,329,35,0.10638297872340426,-2.475032566217977,0.08666320705760248,-1.971977166580177,0.04194355683633026,0.15288448985578768,주요 검토 후보,483,"Generate a poem with six lines and a rhyme scheme of AABB CC.
+Theme: Nature","lines, nature, rhyme, scheme, theme"
+Q5xS06,Q5,서사·형식 생성 중심,S06,수치·연도·가격 혼합,33,3,30,0.09090909090909091,329,35,0.10638297872340426,-1.5473887814313345,0.09757887013939838,-0.8804108584005876,0.03140337104926305,0.23572943534351032,소규모: 탐색만,1215,Generate a data visualization to represent the number of graduates in the last 5 years.,"data, represent, years"
+Q5xS07,Q5,서사·형식 생성 중심,S07,창작 표현·상황,70,10,60,0.14285714285714285,329,35,0.10638297872340426,3.6474164133738594,0.13325867861142215,2.6875699888017897,0.07948856360443703,0.24338634701505113,주요 검토 후보,1404,"Given a current popular movie, generate a funny one-liner tryptic joke about it.
+Black Panther","black, funny, joke"
+Q5xS08,Q5,서사·형식 생성 중심,S08,수학·코드·알고리즘,26,1,25,0.038461538461538464,329,35,0.10638297872340426,-6.7921440261865795,0.07175636211931581,-3.4626616604088447,0.0068218089769898765,0.18893176991958405,소규모: 탐색만,4194,Generate a Python script to print out the prime numbers between 10 and 30.,"numbers, prime, print, python"
+Q5xS09,Q5,서사·형식 생성 중심,S09,앱·디지털 콘텐츠,20,2,18,0.1,329,35,0.10638297872340426,-0.6382978723404251,0.10354609929078012,-0.28368794326241314,0.027865893984153206,0.30103820641179335,소규모: 탐색만,4324,Generate five content ideas for a blog post related to mobile app development.,"app, blog, mobile, post"
+Q5xS10,Q5,서사·형식 생성 중심,S10,식품·일상 물품,14,1,13,0.07142857142857142,329,35,0.10638297872340426,-3.495440729483283,0.09383524277141299,-1.2547735951991268,0.012721886112291636,0.3146926955395781,희소: 통합·보류,3194,Generate a menu for a traditional Thanksgiving dinner.,"dinner, menu, traditional"
+Q5xS11,Q5,서사·형식 생성 중심,S11,시간·동물·이야기 혼합,33,3,30,0.09090909090909091,329,35,0.10638297872340426,-1.5473887814313345,0.09757887013939838,-0.8804108584005876,0.03140337104926305,0.23572943534351032,소규모: 탐색만,381,Generate an opening paragraph for a story set in a magical land.,"magical, opening, set"
+Q5xS12,Q5,서사·형식 생성 중심,S12,환경·건강·개선,9,2,7,0.2222222222222222,329,35,0.10638297872340426,11.583924349881796,0.13704630788485606,3.0663329161451798,0.06322376231222723,0.5474166563271946,희소: 통합·보류,239,"Given a list of natural disasters and their description, generate a poem about them.
+Tsunami: A huge wave caused by the displacement of a large body of water
+Wildfire: Fire that burns large areas of land
+Volcano: An opening in the Earth's surface from which lava, ash, and gas can be released","caused, water"
+Q5xS13,Q5,서사·형식 생성 중심,S13,국가·역사·경제,7,1,6,0.14285714285714285,329,35,0.10638297872340426,3.6474164133738594,0.11436170212765957,0.7978723404255317,0.02567895594897479,0.51313450331903,희소: 통합·보류,2877,"Identify a real-world problem and generate a potential solution.
+Lack of access to clean water in developing countries.","countries, world"

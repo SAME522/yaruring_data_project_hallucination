@@ -1,0 +1,7 @@
+﻿cluster,train_questions,train_yes,train_yes_rate,top_terms
+0,41,1,0.024390243902439025,"examples, provide examples, used, provide, data, technology, applications, list examples, ai, list"
+1,274,31,0.11313868613138686,"write, paragraph, short, write short, sentences, write paragraph, write sentences, poem, story, words"
+2,435,67,0.15402298850574714,"create, create list, list, poem, concept, analogy, create poem, create analogy, given, words"
+3,458,54,0.11790393013100436,"generate, generate list, list, poem, given, words, lines, generate example, generate poem, story"
+4,2212,462,0.2088607594936709,"given, example, list, following, suggest, make, provide, identify, summarize, new"
+5,185,37,0.2,"explain, following, following statement, statement, concept, explain concept, explain difference, difference, analyze, explain following"

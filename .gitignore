@@ -1,0 +1,39 @@
+# Local HaluEval corpus and potentially large, question-level artifacts
+general_data.json
+*.jsonl
+*.ndjson
+upload/
+
+# Re-generated experiment outputs: keep a small number of reviewed summaries tracked
+outputs/**
+!outputs/halueval_final_refinement/
+outputs/halueval_final_refinement/**
+!outputs/halueval_final_refinement/final_model_comparison.csv
+!outputs/halueval_final_refinement/subtopic_8_summary.csv
+!outputs/halueval_final_refinement/final_refinement_report.json
+!outputs/halueval_qs_cross_experiment/
+outputs/halueval_qs_cross_experiment/**
+!outputs/halueval_qs_cross_experiment/model_comparison_summary.csv
+!outputs/halueval_qs_cross_experiment/cross_78_summary.csv
+!outputs/halueval_qs_cross_experiment/cross_experiment_report.json
+!outputs/halueval_word_quality_improved/
+outputs/halueval_word_quality_improved/**
+!outputs/halueval_word_quality_improved/semantic_cluster_13_summary.csv
+!outputs/halueval_word_quality_improved/model_comparison_summary.csv
+!outputs/halueval_word_quality_improved/improvement_report.json
+
+# Secrets, environments, caches, rendered workbooks
+.env
+.env.*
+!.env.example
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+node_modules/
+.streamlit/secrets.toml
+*.xlsx
+*.zip
+
+# Transient workspace helpers
+library_upload_helpers*/
