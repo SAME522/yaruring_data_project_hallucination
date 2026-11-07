@@ -184,6 +184,92 @@ def show_models() -> None:
     bar["모델 · 특징"] = bar["모델"] + " · " + bar["특징"]
     st.bar_chart(bar.set_index("모델 · 특징")[["CV PR-AUC"]])
 
+    st.divider()
+    st.subheader("군집 특징 ON/OFF 비교")
+    st.caption(
+        "같은 모델·학습/시험 분할·기본 변수를 유지하고, "
+        "ON일 때만 기존 질문군집 Q와 단어군집 W 비중을 추가합니다. "
+        "스위치는 저장된 실험 결과를 바꿔 보여주므로 재학습을 기다릴 필요가 없습니다."
+    )
+    picked_model = st.selectbox(
+        "비교할 예측 모델",
+        options=table["모델"].drop_duplicates().tolist(),
+        key="comparison_model",
+    )
+    use_clusters = st.toggle(
+        "군집 특징 사용 (ON = 군집 포함 / OFF = 기본 특징만)",
+        value=True,
+        key="cluster_feature_switch",
+    )
+    selected_features = "기본 + 군집" if use_clusters else "기본 특징"
+    other_features = "기본 특징" if use_clusters else "기본 + 군집"
+    matching_rows = table.loc[table["모델"].eq(picked_model)]
+    active = matching_rows.loc[matching_rows["특징"].eq(selected_features)].iloc[0]
+    alternative = matching_rows.loc[matching_rows["특징"].eq(other_features)].iloc[0]
+    st.write(
+        f"현재 선택: **{picked_model} / {'군집 ON' if use_clusters else '군집 OFF'}** "
+        "(증감은 현재 설정 − 반대 설정)"
+    )
+
+    quick_metrics = [
+        ("CV PR-AUC", "CV PR-AUC", False),
+        ("시험 PR-AUC(AP)", "시험 average_precision", False),
+        ("Yes 재현율", "시험 recall", True),
+        ("시험 F1", "시험 f1", False),
+    ]
+    for metric_col, (title, field, as_percent) in zip(st.columns(4), quick_metrics):
+        gap = float(active[field]) - float(alternative[field])
+        if as_percent:
+            current_value = f"{float(active[field]):.1%}"
+            change = f"{gap * 100:+.1f}%p"
+        else:
+            current_value = f"{float(active[field]):.3f}"
+            change = f"{gap:+.3f}"
+        metric_col.metric(title, current_value, delta=change)
+
+    comparison_fields = [
+        ("5겹 CV PR-AUC", "CV PR-AUC"),
+        ("시험 PR-AUC(AP)", "시험 average_precision"),
+        ("시험 ROC-AUC", "시험 roc_auc"),
+        ("시험 정확도", "시험 accuracy"),
+        ("시험 Yes 재현율", "시험 recall"),
+        ("시험 F1", "시험 f1"),
+        ("잘못된 경고(FP)", "시험 fp"),
+        ("놓친 Yes(FN)", "시험 fn"),
+    ]
+    on_row = matching_rows.loc[matching_rows["특징"].eq("기본 + 군집")].iloc[0]
+    off_row = matching_rows.loc[matching_rows["특징"].eq("기본 특징")].iloc[0]
+    comparison = pd.DataFrame([
+        {
+            "평가 지표": title,
+            "군집 ON": round(float(on_row[field]), 3),
+            "군집 OFF": round(float(off_row[field]), 3),
+            "ON − OFF": round(float(on_row[field]) - float(off_row[field]), 3),
+        }
+        for title, field in comparison_fields
+    ])
+    st.dataframe(comparison, use_container_width=True, hide_index=True)
+
+    def confusion_for(row: pd.Series) -> pd.DataFrame:
+        return pd.DataFrame(
+            [[int(row["시험 tn"]), int(row["시험 fp"])],
+             [int(row["시험 fn"]), int(row["시험 tp"])]],
+            index=["실제 No", "실제 Yes"],
+            columns=["예측 No", "예측 Yes"],
+        )
+
+    primary, secondary = st.columns(2)
+    with primary:
+        st.markdown(f"**현재 설정: {'군집 ON' if use_clusters else '군집 OFF'}**")
+        st.dataframe(confusion_for(active), use_container_width=True)
+    with secondary:
+        st.markdown(f"**비교 설정: {'군집 OFF' if use_clusters else '군집 ON'}**")
+        st.dataframe(confusion_for(alternative), use_container_width=True)
+    st.caption(
+        "FP는 정상 질문에 잘못 경고한 개수, FN은 할루시네이션 Yes를 놓친 개수입니다. "
+        "성능 차이가 작으면 군집 특징의 효과가 확실하다고 단정하지 않습니다."
+    )
+
     winner = meta["selected_by_train_cv"]
     st.subheader("학습 데이터로 선정한 우선 모델")
     st.write(f"**{winner['모델']} / {winner['특징']}** "
