@@ -28,6 +28,11 @@ pages = [
         title="위험도·오분류 분석",
         icon="🔍",
     ),
+    st.Page(
+        "pages/4_성능_개선.py",
+        title="성능 개선",
+        icon="🛠️",
+    ),
 ]
 
 current_page = st.navigation(pages, position="top")
