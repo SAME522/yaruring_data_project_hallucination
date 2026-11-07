@@ -1,0 +1,27 @@
+{
+  "seed": 42,
+  "n_splits": 5,
+  "train_count": 3605,
+  "test_count": 902,
+  "train_yes": 652,
+  "test_yes": 163,
+  "baseline": {
+    "accuracy": 0.8192904656319291,
+    "balanced_accuracy": 0.5,
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1": 0.0,
+    "roc_auc": 0.5,
+    "average_precision": 0.18070953436807094,
+    "tn": 739,
+    "fp": 0,
+    "fn": 163,
+    "tp": 0
+  },
+  "selected_by_train_cv": {
+    "모델": "로지스틱 회귀",
+    "특징": "기본 + 군집",
+    "CV PR-AUC": 0.3175786272869583,
+    "CV ROC-AUC": 0.6495943146453683
+  }
+}
