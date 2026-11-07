@@ -16,6 +16,10 @@ RESULT_URL = (
     "https://raw.githubusercontent.com/SAME522/yaruring_data_project_hallucination/"
     "main/data/improvement_summary.json"
 )
+FOLLOWUP_URL = (
+    "https://raw.githubusercontent.com/SAME522/yaruring_data_project_hallucination/"
+    "main/data/improvement_followup_summary.json"
+)
 
 st.set_page_config(page_title="성능 개선 실험", page_icon="🛠️", layout="wide")
 st.title("성능 개선 실험")
@@ -194,3 +198,126 @@ st.markdown(
     f"[실험 결과 원본]({REPO_URL}/blob/main/data/improvement_summary.json) / "
     f"[이전 모델 평가 결과]({REPO_URL}/blob/main/data/model_comparison_probability.csv)"
 )
+
+
+@st.cache_data(ttl=3600)
+def load_followup():
+    response = requests.get(FOLLOWUP_URL, timeout=45)
+    response.raise_for_status()
+    return json.loads(response.content.decode("utf-8"))
+
+
+st.divider()
+st.header("추가 실험: 규제 강도·확률 보정·질문 의미 단서")
+st.write(
+    "기존 로지스틱 회귀와 같은 3,605개 학습 질문, 902개 시험 질문을 이용했습니다. "
+    "군집 특징은 켠 상태로 고정하고, 각 실험군의 후보를 학습 데이터의 5겹 교차검증 "
+    "Brier 점수로만 선택했습니다. 확률 보정은 각 학습 부분 안에서 3겹 교차검증을 "
+    "한 번 더 수행했습니다. 시험 정답으로 설정을 고르지 않았습니다."
+)
+try:
+    followup = load_followup()
+except Exception as exc:
+    st.warning(f"추가 실험 결과를 불러올 수 없습니다: {exc}")
+else:
+    if (int(followup["train_count"]) != int(previous_info["train_count"])
+            or int(followup["test_count"]) != int(previous_info["test_count"])):
+        st.error("추가 실험 결과와 기존 모델의 학습·시험 질문 수가 다릅니다.")
+        st.stop()
+
+    base = followup["original"]
+    before = base["test"]
+    new_rows = []
+    for win in followup["selected_by_group"]:
+        after = win["test"]
+        new_rows.append({
+            "개선 방법": win["group"],
+            "선택한 설정": win["name"],
+            "기존 CV Brier": base["cv_brier"],
+            "변경 CV Brier": win["cv_brier"],
+            "CV 감소량": base["cv_brier"] - win["cv_brier"],
+            "기존 시험 Brier": before["brier"],
+            "변경 시험 Brier": after["brier"],
+            "시험 감소량": before["brier"] - after["brier"],
+            "기존 시험 MAE": before["mae"],
+            "변경 시험 MAE": after["mae"],
+            "기존 시험 R²": before["r2"],
+            "변경 시험 R²": after["r2"],
+            "기존 시험 PR-AUC": before["ap"],
+            "변경 시험 PR-AUC": after["ap"],
+            "기존 시험 재현율": before["recall_05"],
+            "변경 시험 재현율": after["recall_05"],
+            "기존 시험 F1": before["f1_05"],
+            "변경 시험 F1": after["f1_05"],
+            "기존 TP": before["confusion_05"]["tp"],
+            "변경 TP": after["confusion_05"]["tp"],
+            "기존 FP": before["confusion_05"]["fp"],
+            "변경 FP": after["confusion_05"]["fp"],
+        })
+    followup_table = pd.DataFrame(new_rows)
+    st.caption(
+        f"기존 로지스틱 회귀 시험 Brier {before['brier']:.6f} / "
+        f"평균 확률만 출력하는 기준선 {followup['baseline_test_brier']:.6f}. "
+        "Brier 감소량이 양수이면 확률 오차가 줄어든 것입니다."
+    )
+    f_prob, f_warning = st.tabs(["확률 예측·회귀 지표", "Yes 탐지 지표"])
+    with f_prob:
+        st.dataframe(followup_table[[
+            "개선 방법", "선택한 설정", "기존 CV Brier", "변경 CV Brier", "CV 감소량",
+            "기존 시험 Brier", "변경 시험 Brier", "시험 감소량",
+            "기존 시험 PR-AUC", "변경 시험 PR-AUC",
+        ]].round(6), hide_index=True, use_container_width=True)
+        st.dataframe(followup_table[[
+            "개선 방법", "기존 시험 MAE", "변경 시험 MAE",
+            "기존 시험 R²", "변경 시험 R²",
+        ]].round(5), hide_index=True, use_container_width=True)
+        st.write("0/1 정답과 예측 확률의 MSE는 Brier와 값이 같습니다.")
+    with f_warning:
+        st.dataframe(followup_table[[
+            "개선 방법", "기존 시험 재현율", "변경 시험 재현율",
+            "기존 시험 F1", "변경 시험 F1", "기존 TP", "변경 TP",
+            "기존 FP", "변경 FP",
+        ]].round(5), hide_index=True, use_container_width=True)
+        st.caption("0.5 이상을 Yes라고 경고하는 기준을 모든 모델에 똑같이 적용했습니다.")
+
+    st.subheader("어떤 설정을 선택했을까?")
+    followup_tabs = st.tabs(["1. 규제 C", "2. 확률 보정", "3. 질문 의미 특징"])
+    for group, tab in zip(("1. 규제 강도 C", "2. 확률 보정", "3. 질문 의미 특징"), followup_tabs):
+        with tab:
+            group_rows = pd.DataFrame([{
+                "설정": candidate["name"], "바꾼 점": candidate["reason"],
+                "CV Brier": candidate["cv_brier"],
+                "CV Brier 표준편차": candidate["cv_brier_std"],
+                "CV PR-AUC": candidate["cv_ap"],
+                "CV 재현율": candidate["cv_recall_05"],
+            } for candidate in followup["all_candidates"] if candidate["group"] == group])
+            st.dataframe(group_rows.sort_values("CV Brier").round(6),
+                         hide_index=True, use_container_width=True)
+            chosen = next(item for item in followup["selected_by_group"] if item["group"] == group)
+            st.write(f"학습 교차검증으로 선정한 설정은 {chosen['name']}입니다.")
+
+    c_result, calibration_result, semantic_result = new_rows
+    st.subheader("이번 실험에서 알게 된 점")
+    st.write(
+        f"규제 C 조정은 학습 CV Brier를 {c_result['CV 감소량']:+.6f}만큼 낮췄지만 "
+        f"시험 Brier 변화는 {c_result['시험 감소량']:+.6f}이었습니다. "
+        "확률 보정도 학습 CV에서는 좋아졌으나 시험에서는 오차가 커졌습니다. "
+        f"의미 특징 추가는 반대로 학습 CV Brier가 {semantic_result['CV 감소량']:+.6f}만큼 "
+        f"변했고, 시험 Brier 감소량은 {semantic_result['시험 감소량']:+.6f}이었습니다."
+    )
+    st.info(
+        f"학습 교차검증에서 가장 낮은 Brier를 기록한 설정은 "
+        f"{followup['best_by_train_cv']['name']}"
+        f"({followup['best_by_train_cv']['cv_brier']:.6f})입니다. "
+        "하지만 고정 시험 데이터에서는 기존 모델을 일관되게 이기지 못했습니다. "
+        "특정 시험 점수가 좋아진 설정을 시험 결과만 보고 최종 모델로 바꾸지 않겠습니다."
+    )
+    st.download_button(
+        "추가 실험 비교표 CSV 다운로드",
+        data=followup_table.to_csv(index=False).encode("utf-8-sig"),
+        file_name="halueval_improvement_followup.csv", mime="text/csv",
+    )
+    st.markdown(
+        f"[추가 실험 코드]({REPO_URL}/blob/main/main/model_improvement_followup.py) / "
+        f"[추가 실험 결과 JSON]({REPO_URL}/blob/main/data/improvement_followup_summary.json)"
+    )
