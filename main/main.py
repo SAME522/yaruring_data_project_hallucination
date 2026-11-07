@@ -1,26 +1,30 @@
-"""HaluEval 1.0: preprocessing exploration and fair model comparison.
+"""Explore HaluEval and compare numerical hallucination-risk estimates.
 
-Deploy from this directory with: streamlit run main.py
+Run from the main/ directory: streamlit run main.py
 """
 
 from __future__ import annotations
 
 import io
+import json
 
+import numpy as np
 import pandas as pd
 import requests
 import streamlit as st
 
-from modeling import audition, prepare_question_data
+from modeling import prepare_question_data
+from probability_models import MODEL_KEYS, audition
 
 
 SOURCE_URL = "https://raw.githubusercontent.com/RUCAIBox/HaluEval/main/data/general_data.json"
 REPO_DATA = "https://raw.githubusercontent.com/SAME522/yaruring_data_project_hallucination/main/data"
 CLUSTERED_CSV_URL = f"{REPO_DATA}/questions_clustered.csv"
-RESULTS_CSV_URL = f"{REPO_DATA}/model_comparison_09.csv"
-RESULTS_JSON_URL = f"{REPO_DATA}/model_summary_09.json"
+RESULTS_CSV_URL = f"{REPO_DATA}/model_comparison_probability.csv"
+RESULTS_JSON_URL = f"{REPO_DATA}/model_summary_probability.json"
+PREDICTIONS_CSV_URL = f"{REPO_DATA}/model_predictions_probability.csv"
 
-st.set_page_config(page_title="HaluEval 데이터 분석과 모델 비교", page_icon="🔎", layout="wide")
+st.set_page_config(page_title="HaluEval 전처리와 위험도 예측", page_icon="🔎", layout="wide")
 
 
 @st.cache_data(ttl=3600, show_spinner="데이터 다운로드 중...")
@@ -43,16 +47,15 @@ def fetch_clustered() -> pd.DataFrame:
 
 
 @st.cache_data(ttl=3600)
-def fetch_saved_results() -> tuple[pd.DataFrame, dict]:
-    import json
-
+def fetch_saved_results() -> tuple[pd.DataFrame, dict, pd.DataFrame]:
     table = pd.read_csv(io.BytesIO(download_bytes(RESULTS_CSV_URL)))
-    meta = json.loads(download_bytes(RESULTS_JSON_URL).decode("utf-8"))
-    return table, meta
+    summary = json.loads(download_bytes(RESULTS_JSON_URL).decode("utf-8"))
+    predictions = pd.read_csv(io.BytesIO(download_bytes(PREDICTIONS_CSV_URL)))
+    return table, summary, predictions
 
 
 def enrich(df: pd.DataFrame) -> pd.DataFrame:
-    """Preserve the original EDA preprocessing and its five numeric features."""
+    """Preserve the previous data exploration and its five numerical features."""
     out = df.copy()
     texts = out["user_query"].fillna("").astype(str)
     tokens = texts.str.findall(r"[A-Za-z]+(?:'[A-Za-z]+)*")
@@ -70,7 +73,7 @@ def enrich(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def show_preprocessing() -> None:
-    st.title("🔎 HaluEval 1.0 데이터 탐색·전처리")
+    st.title("HaluEval 데이터 탐색·전처리")
     st.caption("원본 데이터의 결측값, 수치형 특징, Yes/No 분포를 확인합니다.")
     url = st.text_input("HaluEval 원본 Raw 주소", value=SOURCE_URL)
     try:
@@ -105,7 +108,7 @@ def show_preprocessing() -> None:
             ).to_numpy(),
         })
         st.dataframe(overview, use_container_width=True, hide_index=True)
-        st.write(f"중복 질문: **{original['user_query'].duplicated().sum():,}개**")
+        st.write(f"중복 질문: {original['user_query'].duplicated().sum():,}개")
         st.caption("빈 문자열·빈 리스트는 결측치(NaN)와 구분합니다.")
         st.dataframe(original.head(30), use_container_width=True)
     with tab2:
@@ -116,7 +119,7 @@ def show_preprocessing() -> None:
         selected = st.selectbox("분포를 확인할 변수", numeric)
         hist = pd.cut(data[selected], bins=20, duplicates="drop").value_counts(sort=False)
         hist_table = hist.rename_axis("구간").reset_index(name="질문 수")
-        hist_table["구간"] = hist_table["구간"].astype(str)  # Altair Interval fix
+        hist_table["구간"] = hist_table["구간"].astype(str)
         st.bar_chart(hist_table.set_index("구간"))
         st.caption("수치형 열은 원본 문장으로부터 계산한 파생 변수입니다.")
         st.dataframe(data[["user_query"] + numeric].head(30), use_container_width=True)
@@ -126,7 +129,7 @@ def show_preprocessing() -> None:
         else:
             labels = data["hallucination"].astype("string").str.lower().str.strip().value_counts()
             st.bar_chart(labels.rename_axis("라벨").reset_index(name="질문 수").set_index("라벨"))
-            st.write(f"Yes: **{yes_count:,}개**, No: **{no_count:,}개**")
+            st.write(f"Yes: {yes_count:,}개, No: {no_count:,}개")
             by_label = (data.loc[data["할루시네이션_발생"].notna()]
                         .groupby("hallucination")[["질문_글자수", "질문_단어수", "고유_단어수"]]
                         .median())
@@ -139,184 +142,242 @@ def show_preprocessing() -> None:
     st.caption("원본 제공: RUCAIBox/HaluEval (MIT License)")
 
 
+def confusion_from_scores(y_true: pd.Series, risk: pd.Series, threshold: float):
+    actual_yes = y_true.astype(int).eq(1)
+    predicted_yes = risk.astype(float).ge(threshold)
+    tp = int((actual_yes & predicted_yes).sum())
+    fp = int((~actual_yes & predicted_yes).sum())
+    fn = int((actual_yes & ~predicted_yes).sum())
+    tn = int((~actual_yes & ~predicted_yes).sum())
+    matrix = pd.DataFrame(
+        [[tn, fp], [fn, tp]],
+        index=["실제 No", "실제 Yes"],
+        columns=["예측 No", "예측 Yes"],
+    )
+    recall = tp / (tp + fn) if tp + fn else 0.0
+    return matrix, recall, fp, fn
+
+
 def show_models() -> None:
-    st.title("🧪 할루시네이션 Yes/No 분류 모델 비교")
-    st.info("**문제 유형: 지도학습의 이진 분류.** 정답이 Yes/No 두 가지이기 때문입니다. "
-            "로지스틱 회귀는 이름에 '회귀'가 들어가지만, 여기서는 Yes 확률을 구하는 분류 모델입니다. "
-            "앞서 진행한 군집화는 정답을 사용하지 않는 비지도학습으로서 입력 특징을 만드는 역할을 합니다.")
-
-    with st.expander("모델 세 가지의 동작 원리", expanded=True):
-        st.markdown("""
-- **로지스틱 회귀:** 여러 특징의 가중합을 시그모이드 함수에 넣어 Yes 점수를 계산합니다.
-- **kNN:** 새로운 질문과 가까운 학습 질문 21개를 찾아 거리 가중 투표를 합니다.
-- **랜덤 포레스트:** 특징을 나누는 결정트리 100개를 학습하고 그 결과를 종합합니다.
-
-세 모델 모두 **동일한 질문 텍스트 TF-IDF + 질문 길이·단어 수·요청 유형**을 기본으로 사용하며,
-추가 실험에서 **기존 Q군집 및 W단어군집 비중**을 포함해 군집화의 효과를 확인합니다.
-""")
+    st.title("할루시네이션 발생 가능성 수치 예측")
+    st.info(
+        "최종 목표는 질문으로부터 0~1 사이의 위험도 수치를 추정하는 것입니다. "
+        "현재 정답이 Yes/No이므로 로지스틱 회귀와 의사결정트리는 확률을 출력하는 분류기로 학습하고, "
+        "일반 선형 회귀는 비교용으로 사용합니다. 기존 질문·단어 군집은 입력 특징을 만드는 전처리 과정입니다."
+    )
+    with st.expander("비교하는 세 모델과 주의할 점", expanded=True):
+        st.markdown(
+            "- 선형 회귀: 특징의 가중합으로 0/1 정답을 예측합니다. 원래 값은 0~1을 벗어날 수 있어 "
+            "위험도 표시와 확률 평가에만 범위 제한을 적용합니다.\n"
+            "- 로지스틱 회귀: 시그모이드 함수를 이용해 0~1 사이의 Yes 확률을 계산합니다.\n"
+            "- 의사결정트리: 질문 특징에 따른 분기 후 말단 노드의 Yes 비율을 확률로 사용합니다.\n"
+            "\n세 모델 모두 동일한 질문 TF-IDF·수치형 특징·요청 유형을 사용하고, "
+            "군집 ON에서만 질문군집 Q와 단어군집 W 비중을 추가합니다."
+        )
 
     try:
-        table, meta = fetch_saved_results()
+        table, meta, predictions = fetch_saved_results()
     except Exception as exc:
-        st.error(f"저장된 모델 실험 결과를 불러오지 못했습니다: {exc}")
-        st.info("GitHub data/ 폴더에 모델 비교 CSV와 JSON이 있는지 확인해 주세요.")
+        st.error(f"모델 평가 결과를 가져오지 못했습니다: {exc}")
         st.stop()
+    if "probability_live_table" in st.session_state:
+        table = st.session_state["probability_live_table"]
+        meta = st.session_state["probability_live_meta"]
+        predictions = st.session_state["probability_live_predictions"]
+        st.success("현재 CSV로 다시 학습한 결과를 보여 줍니다.")
 
     a, b, c, d = st.columns(4)
     a.metric("학습 질문", f"{int(meta['train_count']):,}")
     b.metric("시험 질문", f"{int(meta['test_count']):,}")
-    c.metric("학습 Yes", f"{int(meta['train_yes']):,}")
-    d.metric("학습 내부 검증", f"{int(meta['n_splits'])}겹")
+    c.metric("학습 Yes 비율", f"{meta['baseline_train_yes_rate']:.1%}")
+    d.metric("학습 데이터 교차검증", f"{int(meta['n_splits'])}겹")
 
-    st.subheader("모델 오디션: 동일한 조건에서 3개 모델 × 2개 특징 조합")
-    st.caption("**선정 기준:** 학습 데이터의 교차검증 PR-AUC(Yes가 드문 데이터에 적합). "
-               "시험 결과는 모델 선택 기준에 사용하지 않았습니다. 표의 지표는 0~1 범위입니다.")
-
-    if "live_table" in st.session_state:
-        table = st.session_state["live_table"]
-        meta = st.session_state["live_meta"]
-        st.success("현재 CSV로 다시 학습한 성적표를 표시합니다.")
-
-    cols = ["모델", "특징", "CV PR-AUC", "CV ROC-AUC", "CV F1", "CV 재현율",
-            "시험 average_precision", "시험 roc_auc", "시험 f1", "시험 recall", "시험 accuracy"]
-    st.dataframe(table[cols].round(3), use_container_width=True, hide_index=True)
-    bar = table[["모델", "특징", "CV PR-AUC"]].copy()
-    bar["모델 · 특징"] = bar["모델"] + " · " + bar["특징"]
-    st.bar_chart(bar.set_index("모델 · 특징")[["CV PR-AUC"]])
-
-    st.divider()
-    st.subheader("군집 특징 ON/OFF 비교")
+    st.subheader("동일 조건에서 세 모델 비교")
     st.caption(
-        "같은 모델·학습/시험 분할·기본 변수를 유지하고, "
-        "ON일 때만 기존 질문군집 Q와 단어군집 W 비중을 추가합니다. "
-        "스위치는 저장된 실험 결과를 바꿔 보여주므로 재학습을 기다릴 필요가 없습니다."
+        "Brier 점수는 예측한 확률과 실제 0/1 정답의 차이를 측정하며 낮을수록 좋습니다. "
+        "PR-AUC(AP)는 Yes 탐지 성능을 평가하며 높을수록 좋습니다. "
+        "최종 후보는 시험 데이터가 아닌 학습 데이터의 교차검증 Brier 점수로 골랐습니다."
     )
-    picked_model = st.selectbox(
-        "비교할 예측 모델",
-        options=table["모델"].drop_duplicates().tolist(),
-        key="comparison_model",
+    cols = [
+        "모델", "특징", "CV Brier", "CV PR-AUC", "CV ROC-AUC",
+        "시험 brier", "시험 average_precision", "시험 roc_auc",
+        "시험 recall", "시험 f1", "시험 out_of_range_count",
+    ]
+    st.dataframe(table[cols].round(4), use_container_width=True, hide_index=True)
+    scores = table[["모델", "특징", "CV Brier"]].copy()
+    scores["모델 · 특징"] = scores["모델"] + " · " + scores["특징"]
+    st.bar_chart(scores.set_index("모델 · 특징")[["CV Brier"]])
+
+    st.subheader("군집 특징 ON/OFF 비교")
+    model = st.selectbox(
+        "비교할 모델", options=list(MODEL_KEYS), key="comparison_probability_model",
     )
     use_clusters = st.toggle(
-        "군집 특징 사용 (ON = 군집 포함 / OFF = 기본 특징만)",
+        "군집 특징 사용 (ON = 군집 포함, OFF = 기본 특징만)",
         value=True,
-        key="cluster_feature_switch",
+        key="cluster_probability_switch",
     )
-    selected_features = "기본 + 군집" if use_clusters else "기본 특징"
-    other_features = "기본 특징" if use_clusters else "기본 + 군집"
-    matching_rows = table.loc[table["모델"].eq(picked_model)]
-    active = matching_rows.loc[matching_rows["특징"].eq(selected_features)].iloc[0]
-    alternative = matching_rows.loc[matching_rows["특징"].eq(other_features)].iloc[0]
-    st.write(
-        f"현재 선택: **{picked_model} / {'군집 ON' if use_clusters else '군집 OFF'}** "
-        "(증감은 현재 설정 − 반대 설정)"
-    )
+    feature = "기본 + 군집" if use_clusters else "기본 특징"
+    subset = table.loc[table["모델"].eq(model)]
+    chosen = subset.loc[subset["특징"].eq(feature)].iloc[0]
+    other = subset.loc[subset["특징"].ne(feature)].iloc[0]
+    st.caption("현재 선택한 설정과 반대 설정의 차이를 확인합니다. 스위치를 눌러도 모델을 재학습하지는 않습니다.")
 
     quick_metrics = [
-        ("CV PR-AUC", "CV PR-AUC", False),
-        ("시험 PR-AUC(AP)", "시험 average_precision", False),
-        ("Yes 재현율", "시험 recall", True),
-        ("시험 F1", "시험 f1", False),
+        ("CV Brier ↓", "CV Brier", True),
+        ("시험 Brier ↓", "시험 brier", True),
+        ("시험 PR-AUC ↑", "시험 average_precision", False),
+        ("시험 Yes 재현율(기준 0.5)", "시험 recall", False),
     ]
-    for metric_col, (title, field, as_percent) in zip(st.columns(4), quick_metrics):
-        gap = float(active[field]) - float(alternative[field])
-        if as_percent:
-            current_value = f"{float(active[field]):.1%}"
-            change = f"{gap * 100:+.1f}%p"
-        else:
-            current_value = f"{float(active[field]):.3f}"
-            change = f"{gap:+.3f}"
-        metric_col.metric(title, current_value, delta=change)
+    for box, (label, field, lower_better) in zip(st.columns(4), quick_metrics):
+        diff = float(chosen[field]) - float(other[field])
+        box.metric(
+            label, f"{float(chosen[field]):.4f}",
+            delta=f"{diff:+.4f}",
+            delta_color="inverse" if lower_better else "normal",
+        )
 
-    comparison_fields = [
-        ("5겹 CV PR-AUC", "CV PR-AUC"),
-        ("시험 PR-AUC(AP)", "시험 average_precision"),
+    fields = [
+        ("교차검증 Brier", "CV Brier"),
+        ("교차검증 PR-AUC", "CV PR-AUC"),
+        ("시험 Brier", "시험 brier"),
+        ("시험 PR-AUC", "시험 average_precision"),
         ("시험 ROC-AUC", "시험 roc_auc"),
-        ("시험 정확도", "시험 accuracy"),
-        ("시험 Yes 재현율", "시험 recall"),
-        ("시험 F1", "시험 f1"),
-        ("잘못된 경고(FP)", "시험 fp"),
-        ("놓친 Yes(FN)", "시험 fn"),
+        ("시험 재현율 (기준 0.5)", "시험 recall"),
+        ("시험 F1 (기준 0.5)", "시험 f1"),
+        ("선형 회귀 원래 값의 범위 초과 건수", "시험 out_of_range_count"),
     ]
-    on_row = matching_rows.loc[matching_rows["특징"].eq("기본 + 군집")].iloc[0]
-    off_row = matching_rows.loc[matching_rows["특징"].eq("기본 특징")].iloc[0]
+    on = subset.loc[subset["특징"].eq("기본 + 군집")].iloc[0]
+    off = subset.loc[subset["특징"].eq("기본 특징")].iloc[0]
     comparison = pd.DataFrame([
         {
-            "평가 지표": title,
-            "군집 ON": round(float(on_row[field]), 3),
-            "군집 OFF": round(float(off_row[field]), 3),
-            "ON − OFF": round(float(on_row[field]) - float(off_row[field]), 3),
+            "지표": label,
+            "군집 ON": round(float(on[key]), 4),
+            "군집 OFF": round(float(off[key]), 4),
+            "ON − OFF": round(float(on[key]) - float(off[key]), 4),
         }
-        for title, field in comparison_fields
+        for label, key in fields
     ])
     st.dataframe(comparison, use_container_width=True, hide_index=True)
 
-    def confusion_for(row: pd.Series) -> pd.DataFrame:
-        return pd.DataFrame(
-            [[int(row["시험 tn"]), int(row["시험 fp"])],
-             [int(row["시험 fn"]), int(row["시험 tp"])]],
-            index=["실제 No", "실제 Yes"],
-            columns=["예측 No", "예측 Yes"],
+    if model == "선형 회귀":
+        st.warning(
+            f"선형 회귀는 시험 질문 {len(predictions):,}개 중 군집 ON에서 "
+            f"{int(on['시험 out_of_range_count']):,}개, OFF에서 "
+            f"{int(off['시험 out_of_range_count']):,}개의 원래 예측값이 0~1 범위를 벗어났습니다. "
+            "이를 0~1로 잘라 표시한 값이 바로 올바른 확률이라는 뜻은 아닙니다."
         )
 
-    primary, secondary = st.columns(2)
-    with primary:
-        st.markdown(f"**현재 설정: {'군집 ON' if use_clusters else '군집 OFF'}**")
-        st.dataframe(confusion_for(active), use_container_width=True)
-    with secondary:
-        st.markdown(f"**비교 설정: {'군집 OFF' if use_clusters else '군집 ON'}**")
-        st.dataframe(confusion_for(alternative), use_container_width=True)
+    suffix = "on" if use_clusters else "off"
+    alternative_suffix = "off" if use_clusters else "on"
+    chosen_risk = predictions[f"{MODEL_KEYS[model]}_{suffix}"]
+    other_risk = predictions[f"{MODEL_KEYS[model]}_{alternative_suffix}"]
+
+    st.subheader("시험 질문으로 위험도 수치 확인")
+    row_number = st.number_input(
+        f"확인할 시험 질문 번호 (1~{len(predictions):,})",
+        min_value=1, max_value=len(predictions), value=1, step=1,
+    )
+    sample = predictions.iloc[int(row_number) - 1]
+    st.text_area("해당 질문", value=str(sample["question"]), height=100, disabled=True)
+    p = float(chosen_risk.iloc[int(row_number) - 1])
+    q = float(other_risk.iloc[int(row_number) - 1])
+    left, right = st.columns(2)
+    left.metric(f"현재 설정: {'군집 ON' if use_clusters else '군집 OFF'} 위험도",
+                f"{p:.1%}", delta=f"{p-q:+.1%} (반대 설정 대비)")
+    right.metric("실제로 기록된 정답", "Yes" if int(sample["y"]) == 1 else "No")
     st.caption(
-        "FP는 정상 질문에 잘못 경고한 개수, FN은 할루시네이션 Yes를 놓친 개수입니다. "
-        "성능 차이가 작으면 군집 특징의 효과가 확실하다고 단정하지 않습니다."
+        "위 예시는 이미 정답이 있는 시험 질문에 대한 예측입니다. 새 질문을 실시간으로 검사하려면 "
+        "학습 때 사용한 군집 변환기를 별도로 보존·재사용해야 합니다."
     )
 
-    winner = meta["selected_by_train_cv"]
-    st.subheader("학습 데이터로 선정한 우선 모델")
-    st.write(f"**{winner['모델']} / {winner['특징']}** "
-             f"(5겹 CV PR-AUC {winner['CV PR-AUC']:.3f})")
-    selected = table.loc[(table["모델"] == winner["모델"]) &
-                         (table["특징"] == winner["특징"])].iloc[0]
-    st.write(f"시험 데이터의 ROC-AUC **{selected['시험 roc_auc']:.3f}**, "
-             f"PR-AUC **{selected['시험 average_precision']:.3f}**, "
-             f"Yes 재현율 **{selected['시험 recall']:.1%}**, "
-             f"F1 **{selected['시험 f1']:.3f}**")
-    confusion = pd.DataFrame(
-        [[int(selected["시험 tn"]), int(selected["시험 fp"])],
-         [int(selected["시험 fn"]), int(selected["시험 tp"])]],
-        index=["실제 No", "실제 Yes"], columns=["예측 No", "예측 Yes"],
+    st.subheader("경고 기준에 따른 결과 변화")
+    threshold = st.slider(
+        "위험 경고 기준", 0.05, 0.95, 0.20, step=0.05,
+        help="기준보다 예측 위험도가 높으면 Yes 경고를 표시한다고 가정합니다.",
     )
-    st.dataframe(confusion, use_container_width=True)
+    primary_matrix, primary_recall, primary_fp, primary_fn = confusion_from_scores(
+        predictions["y"], chosen_risk, threshold
+    )
+    other_matrix, other_recall, other_fp, other_fn = confusion_from_scores(
+        predictions["y"], other_risk, threshold
+    )
+    primary_col, other_col = st.columns(2)
+    with primary_col:
+        st.write(f"현재 설정 (재현율 {primary_recall:.1%}, FP {primary_fp}, FN {primary_fn})")
+        st.dataframe(primary_matrix, use_container_width=True)
+    with other_col:
+        st.write(f"반대 설정 (재현율 {other_recall:.1%}, FP {other_fp}, FN {other_fn})")
+        st.dataframe(other_matrix, use_container_width=True)
+    st.caption(
+        "이 슬라이더는 시험 데이터의 경고 횟수 변화를 관찰하는 용도입니다. "
+        "최종 경고 기준을 선택할 때는 시험 정답이 아닌 학습 데이터 내부의 검증 결과를 사용해야 합니다."
+    )
+
+    st.subheader("확률 예측의 신뢰성")
+    buckets = pd.cut(
+        chosen_risk.astype(float),
+        bins=np.linspace(0, 1, 11), include_lowest=True,
+    )
+    calibration = pd.DataFrame({
+        "구간": buckets.astype(str),
+        "예측": chosen_risk.astype(float),
+        "실제": predictions["y"].astype(int),
+    }).groupby("구간", sort=True, as_index=False).agg(
+        질문_수=("실제", "size"),
+        평균_예측_위험도=("예측", "mean"),
+        실제_Yes_비율=("실제", "mean"),
+    )
+    st.dataframe(calibration.round(3), use_container_width=True, hide_index=True)
+    st.caption(
+        "예측한 위험도와 실제 Yes 비율이 비슷할수록 확률 추정이 잘 맞는 편입니다. "
+        "표본이 적은 구간의 값은 불안정할 수 있습니다."
+    )
+
+    selected_model = meta["selected_by_train_cv"]
+    st.subheader("교차검증으로 선정한 우선 모델")
+    st.write(
+        f"{selected_model['모델']} / {selected_model['특징']}. "
+        f"5겹 CV Brier {selected_model['CV Brier']:.4f} "
+        f"(낮을수록 좋음), CV PR-AUC {selected_model['CV PR-AUC']:.4f}."
+    )
     baseline = meta["baseline"]
-    st.warning(f"아무 질문이나 No로 답하는 기준 모델은 시험 정확도가 "
-               f"{baseline['accuracy']:.1%}이지만 Yes 재현율은 0%입니다. "
-               "따라서 정확도뿐 아니라 재현율·F1·ROC-AUC·PR-AUC를 함께 봐야 합니다.")
+    st.write(
+        f"기준선은 모든 질문에 학습 Yes 비율인 "
+        f"{meta['baseline_train_yes_rate']:.1%}를 예측합니다. "
+        f"기준선의 시험 Brier는 {baseline['brier']:.4f}입니다."
+    )
+    st.caption(
+        "현재 데이터에서의 확률 추정이 실제 모든 AI·질문에서의 할루시네이션 발생 확률을 "
+        "보장하지는 않습니다. HaluEval은 특정 응답의 Yes/No 기록을 이용한 데이터입니다."
+    )
 
-    st.subheader("기존 전처리 CSV와 결과 재현")
-    st.caption("시험 라벨을 빼고 고정된 학습 3,605개만으로 벡터화·표준화·교차검증합니다. "
-               "결과표에 기록된 시험 점수는 설정을 정한 다음 한 번 평가한 값입니다.")
-    if st.button("현재 데이터로 모델 3종 다시 학습·검증", type="primary"):
-        try:
-            with st.spinner("동일한 학습/시험 분할로 6가지 실험을 실행하고 있습니다..."):
-                clustered = fetch_clustered()
-                prepare_question_data(clustered)  # validate split and feature schema
-                fresh_table, fresh_meta = audition(clustered, n_splits=5)
-            st.session_state["live_table"] = fresh_table
-            st.session_state["live_meta"] = {k: v for k, v in fresh_meta.items()
-                                             if k != "fitted_pipelines"}
-            st.rerun()
-        except Exception as exc:
-            st.error(f"재학습 실패: {exc}")
-            st.info("data/questions_clustered.csv가 전처리·군집 특징을 포함하는지 확인해 주세요.")
+    with st.expander("동일한 데이터로 세 모델 다시 학습"):
+        if st.button("다시 학습하고 비교하기"):
+            try:
+                with st.spinner("학습 데이터에서 5겹 교차검증 중입니다..."):
+                    frame = fetch_clustered()
+                    prepare_question_data(frame)
+                    fresh_table, fresh_meta = audition(frame, n_splits=5)
+                st.session_state["probability_live_table"] = fresh_table
+                st.session_state["probability_live_predictions"] = fresh_meta["test_predictions"]
+                st.session_state["probability_live_meta"] = {
+                    key: value for key, value in fresh_meta.items()
+                    if key not in {"fitted_pipelines", "test_predictions"}
+                }
+                st.rerun()
+            except Exception as exc:
+                st.error(f"재학습 실패: {exc}")
 
-    st.download_button("모델 성적표 다운로드 (CSV)",
-                       data=table.to_csv(index=False).encode("utf-8-sig"),
-                       file_name="halueval_model_audition.csv", mime="text/csv")
-    st.caption("이 실험은 과거 응답의 Yes/No를 예측한 것입니다. "
-               "점수는 실제 서비스에서 보장되는 할루시네이션 발생 확률이 아니며, "
-               "새 프롬프트 실시간 검사는 추가 검증 이후 구현할 예정입니다.")
+    st.download_button(
+        "세 모델 비교 결과 다운로드 (CSV)",
+        data=table.to_csv(index=False).encode("utf-8-sig"),
+        file_name="halueval_probability_model_comparison.csv",
+        mime="text/csv",
+    )
 
 
-menu = st.sidebar.radio("분석 메뉴", ["데이터 탐색·전처리", "모델 학습·성능 비교"])
+menu = st.sidebar.radio("분석 메뉴", ["데이터 탐색·전처리", "모델 학습·위험도 평가"])
 if menu == "데이터 탐색·전처리":
     show_preprocessing()
 else:
