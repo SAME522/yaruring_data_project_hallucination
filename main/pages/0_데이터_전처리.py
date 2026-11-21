@@ -57,9 +57,15 @@ def enrich(frame: pd.DataFrame) -> pd.DataFrame:
 
 
 st.title("HaluEval 원본 데이터와 전처리")
+st.info(
+    "Yes/No는 위험한 질문을 뜻하는 고정된 등급이 아니라, "
+    "자료에 기록된 특정 AI 답변에 부여된 판정이다. "
+    "불완전한 답변 등 다양한 사례가 포함될 수 있으므로 "
+    "질문 자체의 절대적 위험도로 해석하지 않는다."
+)
 st.write(
     "이 화면에서는 데이터를 살펴보고 질문 길이, 단어 수 등의 숫자 특징을 만듭니다. "
-    "왼쪽 페이지 메뉴에서 모델별 성적표, 군집 ON/OFF, 위험도·오분류 분석을 확인할 수 있습니다."
+    "상단 페이지 메뉴에서 모델별 성적표, 군집 ON/OFF, 위험도·오분류 분석을 확인할 수 있습니다."
 )
 source_url = st.text_input("원본 데이터 주소", SOURCE_URL)
 try:
@@ -80,6 +86,36 @@ one.metric("원본 질문 수", f"{len(original):,}")
 two.metric("원본 열 수", len(original.columns))
 three.metric("만든 숫자 특징", "5개")
 four.metric("Yes 비율", f"{yes / (yes + no):.1%}" if yes + no else "알 수 없음")
+
+st.subheader("공개 원본과 실제 모델 분석 자료의 차이")
+st.write(
+    "현재 화면은 HaluEval 원본 JSONL을 직접 불러와 탐색한다. "
+    "최종 모델은 별도로 저장된 가공 CSV의 4,507건을 사용했으며, "
+    "학습 3,605건과 시험 902건으로 나뉜다. "
+    "공개 일반 질문 5,000건과 분석 4,507건의 차이 493건은 "
+    "사유별 제외 내역이 확인되지 않아 임의로 이유를 추정하지 않았다."
+)
+st.dataframe(
+    pd.DataFrame([
+        {"자료": "공개 원본", "범위": f"{len(original):,}건 (현재 주소)", "용도": "원본 열·결측·분포 탐색"},
+        {"자료": "프로젝트 가공 CSV", "범위": "4,507건 × 68열", "용도": "특징·정답·분할 저장"},
+        {"자료": "학습 자료", "범위": "3,605건", "용도": "모델 학습 및 5겹 교차검증"},
+        {"자료": "시험 자료", "범위": "902건", "용도": "최종 모델 성능 확인"},
+    ]),
+    hide_index=True, use_container_width=True,
+)
+st.caption(
+    "68열은 저장된 표의 열 수다. 최종 모델은 질문을 TF-IDF·수치형·범주형 특징으로 "
+    "변환하여 입력하므로 실제 입력 행렬의 열 수와 다르다."
+)
+with st.expander("최종 모델 입력의 수치형 특징 6개", expanded=False):
+    st.write(
+        "질문 글자 수(char_count), 단어 수(token_count), 고유 단어 수(unique_token_count), "
+        "평균 영문 단어 길이(avg_alpha_word_length), 물음표 수(question_mark_count), "
+        "숫자 토큰 수(number_token_count). "
+        "이 탐색 화면에서 만드는 숫자 특징은 5개로, 모델의 6개와 구성이 일부 다르다."
+    )
+st.page_link("pages/0_연구_소개_자기평가.py", label="연구 목적·10단계 분석 과정으로 이동", icon="📘")
 
 tab1, tab2, tab3, tab4 = st.tabs([
     "원본·결측", "파생 특징·분포", "Yes/No 분포", "기존 군집 데이터",
