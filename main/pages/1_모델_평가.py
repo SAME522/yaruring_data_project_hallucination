@@ -151,6 +151,11 @@ if cluster_on:
     )
 
 st.subheader("정확도·정밀도·재현율·F1로 Yes 탐지 평가")
+st.write(
+    "모든 모델은 같은 학습·시험 분할과 예측 기준 0.5를 사용했다. "
+    "정확도는 No가 많은 자료에서 높게 나올 수 있으므로, "
+    "실제로 Yes를 얼마나 찾았는지 알려주는 재현율·F1도 함께 평가했다."
+)
 classification_columns = [
     "모델", "시험 accuracy", "시험 precision", "시험 recall", "시험 f1", "시험 average_precision",
 ]
@@ -185,6 +190,20 @@ cols = [
     "기준선보다 낮은 Brier", "기준선보다 높은 PR-AUC",
 ]
 st.dataframe(exam[cols].round(4), hide_index=True, use_container_width=True)
+st.subheader("모델 선택에 사용한 5겹 검증 평균과 시험 점수")
+st.dataframe(
+    exam[["모델", "CV Brier", "CV Brier 표준편차", "시험 brier"]]
+    .rename(columns={
+        "CV Brier": "5겹 CV Brier 평균",
+        "CV Brier 표준편차": "폴드별 점수 표준편차",
+        "시험 brier": "최종 시험 Brier",
+    }).round(5),
+    hide_index=True, use_container_width=True,
+)
+st.caption(
+    "Brier는 예측 확률과 실제 0/1의 차이를 제곱해 평균한 값이며 낮을수록 좋다. "
+    "후보는 시험 점수가 아니라 학습 5겹 교차검증 Brier 평균으로 선택했다."
+)
 st.caption(
     "Brier 점수는 낮을수록, PR-AUC·ROC-AUC·재현율·F1은 높을수록 좋습니다. "
     "Brier 개선 폭은 양수면 기준선보다 개선된 것이고 음수면 악화된 것입니다."
@@ -206,6 +225,64 @@ st.write(
 
 selected = info["selected_by_train_cv"]
 chosen = get_row(results, selected["모델"], selected["특징"] == ON)
+st.subheader("평가지표의 의미 · 결과 · 기준선 · 선택 이유")
+metric_guide = pd.DataFrame([
+    {
+        "지표": "정확도",
+        "뜻": "전체 시험 질문 중 맞힌 비율",
+        "선택 모델": f"{chosen['시험 accuracy']:.2%}",
+        "기준선": f"{base['accuracy']:.2%} (항상 No)",
+        "사용 이유": "전체 적중률 확인. 불균형 때문에 단독 판단은 위험",
+    },
+    {
+        "지표": "정밀도",
+        "뜻": "Yes라고 경고한 질문 중 실제 Yes 비율",
+        "선택 모델": f"{chosen['시험 precision']:.2%}",
+        "기준선": "0% (항상 No)",
+        "사용 이유": "불필요한 경고가 얼마나 생기는지 확인",
+    },
+    {
+        "지표": "재현율",
+        "뜻": "실제 Yes 가운데 찾아낸 비율",
+        "선택 모델": f"{chosen['시험 recall']:.2%}",
+        "기준선": "0% (항상 No)",
+        "사용 이유": "할루시네이션을 놓치는 정도 파악",
+    },
+    {
+        "지표": "F1",
+        "뜻": "정밀도와 재현율을 함께 반영",
+        "선택 모델": f"{chosen['시험 f1']:.4f}",
+        "기준선": "0 (항상 No)",
+        "사용 이유": "잘못된 경고와 놓친 Yes를 함께 고려",
+    },
+    {
+        "지표": "Brier",
+        "뜻": "예측 확률과 0/1 정답의 평균 제곱 오차",
+        "선택 모델": f"{chosen['시험 brier']:.4f}",
+        "기준선": f"{base['brier']:.4f} (일정 확률)",
+        "사용 이유": "0~1로 출력한 발생 가능성의 품질 평가",
+    },
+])
+st.dataframe(metric_guide, hide_index=True, use_container_width=True)
+st.caption(
+    "항상 No는 분류 기준선, 일정 확률은 학습 Yes 비율을 전부에게 부여하는 확률 기준선이다. "
+    "두 종류의 기준선을 혼동하지 않도록 별도로 표기했다."
+)
+tp, fn, fp, tn = (
+    int(chosen['시험 tp']), int(chosen['시험 fn']),
+    int(chosen['시험 fp']), int(chosen['시험 tn'])
+)
+st.write(
+    f"혼동행렬을 직접 풀어 쓰면 실제 Yes {tp + fn}건 중 {tp}건을 찾고 {fn}건을 놓쳤으며, "
+    f"정상 사례 {fp}건을 잘못 경고했다. "
+    f"네 항목의 합계는 {tp + fn + fp + tn}건으로 시험 자료 수와 일치한다."
+)
+st.warning(
+    "TF-IDF·표준화·범주 인코딩은 교차검증에서 각 학습 부분에 맞춰 학습했지만, "
+    "사전에 생성한 질문·단어군집은 폴드마다 새로 생성하지 않았다. "
+    "따라서 군집을 포함한 평가에는 추가 검증이 필요하다."
+)
+
 st.subheader("현재 선정한 모델")
 st.write(
     f"학습 데이터의 교차검증 Brier 점수가 가장 낮은 "
