@@ -8,10 +8,15 @@ import streamlit as st
 
 pages = [
     st.Page(
+        "pages/0_연구_소개_자기평가.py",
+        title="연구 소개·자기평가",
+        icon="📘",
+        default=True,
+    ),
+    st.Page(
         "pages/0_데이터_전처리.py",
         title="데이터 전처리",
         icon="🔎",
-        default=True,
     ),
     st.Page(
         "pages/1_모델_평가.py",
