@@ -171,7 +171,7 @@ classification_view = pd.concat([majority, exam[classification_columns]], ignore
 st.dataframe(classification_view.round(4), hide_index=True, use_container_width=True)
 st.caption(
     "여기서 정밀도·재현율·F1·정확도는 위험도 0.5 이상을 Yes로 간주해 계산했습니다. "
-    "PR-AUC(AP)는 경고 기준 하나에 묶이지 않은 별도의 분류 지표입니다."
+    "교차검증 성적표의 ‘PR-AUC’는 여러 경고 기준에서 계산한 평균 정밀도(AP)를 가리킵니다."
 )
 st.write(
     "항상 No라고 답하는 기준선의 정확도는 높지만 실제 Yes를 한 건도 찾지 못합니다. "
@@ -212,10 +212,8 @@ st.caption(
 st.subheader("기준선이 예측하는 값")
 st.write(
     f"확률 예측의 기준선은 모든 질문에 학습 데이터의 Yes 비율인 "
-    f"{info['baseline_train_yes_rate']:.1%}를 똑같이 출력합니다. "
-    f"기준선의 시험 Brier는 {base['brier']:.4f}, PR-AUC는 "
-    f"{base['average_precision']:.4f}입니다. 이 점수를 넘어야 "
-    "질문의 특징을 분석한 이점이 있다고 말할 수 있습니다."
+    f"{info['baseline_train_yes_rate']:.2%}를 똑같이 출력합니다. "
+    f"시험 Brier가 이 기준선의 {base['brier']:.4f}보다 낮으면 질문별 예측의 확률 오차가 줄어든 것입니다."
 )
 st.write(
     f"반면 Yes/No를 직접 판정할 때의 기준선은 모든 질문을 No로 예측하며 "
@@ -226,6 +224,10 @@ st.write(
 selected = info["selected_by_train_cv"]
 chosen = get_row(results, selected["모델"], selected["특징"] == ON)
 st.subheader("평가지표의 의미 · 결과 · 기준선 · 선택 이유")
+st.caption(
+    f"학습 교차검증에서 선택한 {selected['모델']}({selected['특징']})의 시험 {len(y_test):,}건 결과입니다. "
+    "정확도·정밀도·재현율·F1은 위험도 0.5 이상을 Yes로 판정해 계산했습니다."
+)
 metric_guide = pd.DataFrame([
     {
         "지표": "정확도",
@@ -238,35 +240,64 @@ metric_guide = pd.DataFrame([
         "지표": "정밀도",
         "뜻": "Yes라고 경고한 질문 중 실제 Yes 비율",
         "선택 모델": f"{chosen['시험 precision']:.2%}",
-        "기준선": "0% (항상 No)",
+        "기준선": f"{base['precision']:.2%} (항상 No)",
         "사용 이유": "불필요한 경고가 얼마나 생기는지 확인",
     },
     {
         "지표": "재현율",
         "뜻": "실제 Yes 가운데 찾아낸 비율",
         "선택 모델": f"{chosen['시험 recall']:.2%}",
-        "기준선": "0% (항상 No)",
+        "기준선": f"{base['recall']:.2%} (항상 No)",
         "사용 이유": "할루시네이션을 놓치는 정도 파악",
     },
     {
         "지표": "F1",
-        "뜻": "정밀도와 재현율을 함께 반영",
+        "뜻": "정밀도와 재현율의 조화평균",
         "선택 모델": f"{chosen['시험 f1']:.4f}",
-        "기준선": "0 (항상 No)",
+        "기준선": f"{base['f1']:.4f} (항상 No)",
         "사용 이유": "잘못된 경고와 놓친 Yes를 함께 고려",
     },
     {
-        "지표": "Brier",
+        "지표": "평균 정밀도(AP)",
+        "뜻": "새로 찾은 Yes 수를 가중치로 삼아 경고 기준별 정밀도를 평균한 값",
+        "선택 모델": f"{chosen['시험 average_precision']:.4f}",
+        "기준선": f"{base['average_precision']:.4f} (일정 확률)",
+        "사용 이유": "Yes가 드문 자료에서 위험도 상위 질문에 실제 Yes가 모이는지 확인",
+    },
+    {
+        "지표": "ROC-AUC",
+        "뜻": "실제 Yes·No 한 쌍에서 Yes가 더 높은 위험도를 받은 비율(동점은 절반)",
+        "선택 모델": f"{chosen['시험 roc_auc']:.4f}",
+        "기준선": f"{base['roc_auc']:.4f} (일정 확률)",
+        "사용 이유": "경고 기준을 정하기 전에 모델이 Yes와 No의 순서를 얼마나 잘 구분하는지 확인",
+    },
+    {
+        "지표": "Brier 점수(MSE)",
         "뜻": "예측 확률과 0/1 정답의 평균 제곱 오차",
         "선택 모델": f"{chosen['시험 brier']:.4f}",
         "기준선": f"{base['brier']:.4f} (일정 확률)",
-        "사용 이유": "0~1로 출력한 발생 가능성의 품질 평가",
+        "사용 이유": "큰 확률 오차에 더 큰 벌점을 주며, 학습 교차검증에서 모델을 고르는 데 사용",
+    },
+    {
+        "지표": "평균 절대 오차(MAE)",
+        "뜻": "예측 확률과 0/1 정답 사이의 거리를 평균한 값",
+        "선택 모델": f"{selected_metrics['MAE']:.4f}",
+        "기준선": f"{baseline_mae:.4f} (일정 확률)",
+        "사용 이유": "예측 확률이 질문당 평균적으로 얼마나 빗나가는지 확인",
+    },
+    {
+        "지표": "결정계수(R²)",
+        "뜻": "모든 질문에 시험 Yes 비율을 예측할 때와 비교해 제곱 오차가 줄어든 비율",
+        "선택 모델": f"{selected_metrics['R²']:.4f}",
+        "기준선": f"{baseline_r2:.7f} (일정 확률)",
+        "사용 이유": "질문 특징을 사용했을 때 평균 예측보다 설명력이 얼마나 달라지는지 확인",
     },
 ])
-st.dataframe(metric_guide, hide_index=True, use_container_width=True)
+st.table(metric_guide.set_index("지표"))
 st.caption(
-    "항상 No는 분류 기준선, 일정 확률은 학습 Yes 비율을 전부에게 부여하는 확률 기준선이다. "
-    "두 종류의 기준선을 혼동하지 않도록 별도로 표기했다."
+    "항상 No인 분류 기준선은 Yes 경고가 0건이어서 정밀도를 계산할 때 분모가 0입니다. 평가 코드에서는 0으로 기록했습니다. "
+    f"일정 확률 기준선은 모든 질문의 위험도가 동점이므로 AP가 시험 Yes 비율({int(y_test.sum())}/{len(y_test)}), "
+    "ROC-AUC가 0.5입니다."
 )
 tp, fn, fp, tn = (
     int(chosen['시험 tp']), int(chosen['시험 fn']),
