@@ -1,4 +1,4 @@
-"""Lesson 10: compare three pre-declared improvement experiments fairly."""
+"""Compare recorded model improvement experiments and interpret their limits."""
 
 from __future__ import annotations
 
@@ -24,7 +24,7 @@ FOLLOWUP_URL = (
 st.set_page_config(page_title="성능 개선 실험", page_icon="🛠️", layout="wide")
 st.title("성능 개선 실험")
 st.write(
-    "9차시의 모델을 기준으로 TF-IDF 특징 변경, Yes 가중치 조정, "
+    "기존 로지스틱 회귀·의사결정트리를 기준으로 TF-IDF 특징 변경, Yes 가중치 조정, "
     "의사결정트리 설정 변경을 각각 실행한 결과입니다. "
     "새로운 데이터를 추가하지 않고 기존의 학습·시험 데이터 분할을 그대로 사용했습니다."
 )
@@ -152,6 +152,21 @@ for tab, group in zip(tabs, groups):
         st.bar_chart(candidates.set_index("실험 설정")[["CV Brier"]])
         selected = next(x for x in improvements["selected_by_group"] if x["group"] == group)
         st.write(f"학습 교차검증으로 선택한 설정: {selected['name']}. {selected['reason']}.")
+
+st.subheader("개선 실험의 목적과 실제 대가")
+st.write(
+    "Yes 사례를 더 중요하게 학습하도록 가중치를 1.5배로 바꾸면 "
+    "실제 Yes 탐지는 6건에서 21건으로 15건 증가하지만, "
+    "정상 답변에 대한 잘못된 경고도 11건에서 34건으로 23건 늘어난다. "
+    "재현율은 3.68%에서 12.88%로 상승했지만 Brier는 악화됐다. "
+    "따라서 한 지표만 좋아졌다고 전체 개선 성공으로 판단하지 않는다."
+)
+st.warning(
+    "원래 모델 평가와 여러 개선 실험에서 같은 시험 902건의 점수를 반복해 확인했다. "
+    "각 후보 설정은 학습 교차검증을 기준으로 선택했더라도, "
+    "이 시험 자료는 이후 연구자에게 완전히 새로운 검증 자료가 아니다. "
+    "추후 별도의 미사용 데이터로 최종 성능을 다시 평가해야 한다."
+)
 
 st.subheader("결과 해석")
 a_result, b_result, c_result = rows
